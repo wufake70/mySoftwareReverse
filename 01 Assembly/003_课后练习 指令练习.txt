@@ -1,0 +1,207 @@
+
+第一题：下面的指令，每一个格式做一个实验：
+
+练习目的：
+
+深刻理解寄存器、内存以及数据的宽度
+
+MOV指令：
+	
+1、MOV r/m8,r8 
+	
+2、MOV r/m16,r16
+	
+3、MOV r/m32,r32
+	
+4、MOV r8,r/m8
+	
+5、MOV r16,r/m16
+	
+6、MOV r32,r/m32
+	
+7、MOV r8, imm8
+	
+8、MOV r16, imm16
+	
+9、MOV r32, imm32
+
+ADD指令
+			
+ADD AL, imm8 
+	
+ADD AX, imm16
+	
+ADD EAX, imm32
+	
+ADD r/m8, imm8
+	
+ADD r/m16,imm16
+	
+ADD r/m32,imm32
+	
+ADD r/m16, imm8
+	
+ADD r/m32, imm8
+	
+ADD r/m8, r8
+	
+ADD r/m16, r16
+	
+ADD r/m32, r32
+	
+ADD r8, r/m8
+	
+ADD r16, r/m16
+	
+ADD r32, r/m32
+
+ADD指令
+
+SUB AL, imm8 
+	
+SUB AX, imm16
+	
+SUB EAX, imm32
+	
+SUB r/m8, imm8
+	
+SUB r/m16,imm16
+	
+SUB r/m32,imm32
+	
+SUB r/m16, imm8
+	
+SUB r/m32, imm8
+	
+SUB r/m8, r8
+	
+SUB r/m16, r16
+	
+SUB r/m32, r32
+	
+SUB r8, r/m8
+	
+SUB r16, r/m16
+	
+SUB r32, r/m32
+
+
+AND指令
+			
+AND AL, imm8
+		
+AND AX, imm16
+		
+AND EAX, imm32
+		
+AND r/m8, imm8
+		
+AND r/m16,imm16
+		
+AND r/m32,imm32
+		
+AND r/m16, imm8
+		
+AND r/m32, imm8
+		
+AND r/m8, r8
+		
+AND r/m16, r16
+		
+AND r/m32, r32
+		
+AND r8, r/m8
+		
+AND r16, r/m16
+		
+AND r32, r/m32
+
+
+OR指令：
+		
+OR AL, imm8
+	
+OR AX, imm16
+	
+OR EAX, imm32
+	
+OR r/m8, imm8
+	
+OR r/m16,imm16
+	
+OR r/m32,imm32
+	
+OR r/m16, imm8
+	
+OR r/m32, imm8
+	
+OR r/m8, r8
+	
+OR r/m16, r16
+	
+OR r/m32, r32
+	
+OR r8, r/m8
+	
+OR r16, r/m16
+	
+OR r32, r/m32
+
+
+XOR指令：
+		
+XOR AL, imm8
+	
+XOR AX, imm16
+	
+XOR EAX, imm32
+	
+XOR r/m8, imm8
+	
+XOR r/m16,imm16
+	
+XOR r/m32,imm32
+	
+XOR r/m16, imm8
+	
+XOR r/m32, imm8
+	
+XOR r/m8, r8
+	
+XOR r/m16, r16
+	
+XOR r/m32, r32
+	
+XOR r8, r/m8
+	
+XOR r16, r/m16
+		
+XOR r32, r/m32
+
+
+NOT指令：
+	
+NOT r/m8
+
+NOT r/m16
+
+NOT r/m32
+
+第二题：内存读写练习:每种寻址公式分别实现内存的读、写和取内存地址
+
+练习目的：
+
+深刻理解内存寻址方式
+
+寻址公式一：[立即数]
+										
+寻址公式二：[reg]  reg代表寄存器 可以是8个通用寄存器中的任意一个
+						
+寻址公式三：[reg+立即数] 
+										
+寻址公式四：[reg+reg*{1,2,4,8}] 
+										
+寻址公式五：[reg+reg*{1,2,4,8}+立即数] 
+					
+	
+
