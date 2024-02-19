@@ -8,7 +8,10 @@ set /p input=Go to Git[Y/N]:
 
 if "%input%"=="y" (goto GoToGit)
 if "%input%"=="Y" (goto GoToGit)
-echo "%input%"
+
+color 7
+pause > nul
+exit
 
 :GoToGit
 start https://github.com/wufake70/mySoftwareReverse
