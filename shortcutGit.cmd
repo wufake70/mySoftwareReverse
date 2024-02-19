@@ -5,8 +5,8 @@ git add .
 git commit . -m"%date% %time%"
 git push origin master
 set /p input=Go to Git[Y/N]:
-if "%input%"=="y" (goto:GoToGit)
-if "%input%"=="Y" (goto:GoToGit)
+if "%input%"=="y" (goto GoToGit)
+if "%input%"=="Y" (goto GoToGit)
 
 color 7
 pause > nul
