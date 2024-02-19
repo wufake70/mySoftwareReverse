@@ -17,3 +17,4 @@ exit
 start https://github.com/wufake70/mySoftwareReverse
 color 7
 pause > nul
+exit
