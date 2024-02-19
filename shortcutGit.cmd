@@ -5,14 +5,10 @@ git add .
 git commit . -m"%date% %time%"
 git push origin master
 set /p input=Go to Git[Y/N]:
-echo "%input%"
+
 if "%input%"=="y" (goto GoToGit)
 if "%input%"=="Y" (goto GoToGit)
-
-color 7
-pause > nul
-
-
+echo "%input%"
 
 :GoToGit
 start https://github.com/wufake70/mySoftwareReverse
