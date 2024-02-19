@@ -14,6 +14,6 @@ pause > nul
 
 
 :GoToGit
-start https://github.com/wufake70/mySoftwareReverse
-color 7
-pause > nul
+	start https://github.com/wufake70/mySoftwareReverse
+	color 7
+	pause > nul
