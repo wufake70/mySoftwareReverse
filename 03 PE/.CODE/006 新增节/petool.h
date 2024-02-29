@@ -43,6 +43,10 @@ void WriteToFile(char* data, char* fpath, size_t fileSize) {
 	}
 }
 
+size_t AutoAlign(size_t x,size_t align_num)
+{
+	return x%align_num==0?(x!=0?x:align_num):(x/align_num+1)*align_num;
+}
 
 char* ReadPE(char* pepath)
 {
@@ -528,7 +532,8 @@ int Add_NewSection(char** fbuffer,size_t file_size,section_head* new_section_hea
 			strcpy((char*)new_section_head->Name,".new");
 			new_section_head->Misc.VirtualSize=new_section_size;
 			new_section_head->VirtualAddress=img_size;
-			new_section_head->SizeOfRawData=new_section_size;
+			// 确保按文件对齐
+			new_section_head->SizeOfRawData=AutoAlign(new_section_size,file_align);
 			new_section_head->PointerToRawData=p_section->PointerToRawData+p_section->SizeOfRawData;
 			new_section_head->Characteristics=0x60000020;
 
