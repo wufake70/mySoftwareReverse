@@ -26,6 +26,7 @@ size_t GetFileSize(char* fpath) {
     }
 }
 
+
 void WriteToFile(char* data, char* fpath, size_t fileSize) {
     FILE* file = fopen(fpath, "wb");
     if (file != NULL) {
@@ -370,6 +371,21 @@ __int64 RVAtoFOA(__int64 rva,char* p)
 	return 0;
 }
 
+size_t getFileBufferSize(char* file_buffer)
+{
+	if(file_buffer==NULL)
+	{
+		printf("Get a NULL.\n");
+		return 0;
+	}
+
+	stdpe_head* p_stdpe=GetPE_StdPtr(file_buffer);
+	int section_num=p_stdpe->NumberOfSections;
+	section_head* p_section=GetPE_sectionPtr(file_buffer,section_num-1);
+
+	return p_section->PointerToRawData+p_section->SizeOfRawData;
+
+}
 
 
 void AddMessageBoxToSection(char* pbuffer,char* messageBox_title,char* messageBox_content)
@@ -646,13 +662,13 @@ int expandSection(char* img_buffer,char* new_section,size_t new_section_size_,OU
 	rawdata_size=p_section->SizeOfRawData;
 	virtual_size=p_section->Misc.VirtualSize;
 	
-	// modify section header,sizeofimage
+	// modify section header,sizeofimage,Characteristics
 	new_section_size+=virtual_size>rawdata_size?AutoAlign(virtual_size,section_align):rawdata_size;
 	new_section_size=AutoAlign(AutoAlign(new_section_size,section_align),file_align);
 	p_section->SizeOfRawData=new_section_size;
 	p_section->Misc.VirtualSize=new_section_size;
 	p_section->Characteristics=0x60000020;
-	
+
 	if(p_stdpe->Machine==0x14c)
 	{
 		p_optpe->SizeOfImage=p_section->VirtualAddress+new_section_size;
@@ -672,6 +688,61 @@ int expandSection(char* img_buffer,char* new_section,size_t new_section_size_,OU
 
 	return 0;
 
+}
+
+
+
+// Conbine Section Header
+int combineSection(char* img_buffer)
+{
+	if(img_buffer==0)
+	{
+		printf("Get a NULL;\n");
+		return 0;
+	}
+
+	size_t file_align=0;
+	size_t section_align=0;
+	size_t max_size=0;
+	size_t headers_size=0;
+	size_t virtual_size=0;
+	size_t rawdata_size=0;
+	int section_num=0;
+	stdpe_head* p_stdpe=NULL;
+	optpe_head* p_optpe=NULL;
+	optpe64_head* p_optpe64=NULL;
+	section_head* p_section_1=NULL;
+	section_head* p_section_2=NULL;
+	
+	p_stdpe=GetPE_StdPtr(img_buffer);
+	section_num=p_stdpe->NumberOfSections;
+	p_section_1=GetPE_sectionPtr(img_buffer,0);
+	p_section_2=GetPE_sectionPtr(img_buffer,section_num-1);
+	virtual_size=p_section_2->Misc.VirtualSize;
+	rawdata_size=p_section_2->SizeOfRawData;
+
+	if(p_stdpe->Machine==0x14c)
+	{
+		p_optpe=GetPE_OptPtr(img_buffer);
+		headers_size=p_optpe->SizeOfHeaders;
+		file_align=p_optpe->FileAlignment;
+		section_align=p_optpe->SectionAlignment;
+		
+	}else{
+		p_optpe64=GetPE_Opt64Ptr(img_buffer);
+		headers_size=p_optpe64->SizeOfHeaders;
+		file_align=p_optpe64->FileAlignment;
+		section_align=p_optpe64->SectionAlignment;
+	}
+	max_size=AutoAlign(virtual_size,section_align);
+
+	p_section_1->Misc.VirtualSize=p_section_2->VirtualAddress+max_size-AutoAlign(headers_size,section_align);
+	p_section_1->Misc.VirtualSize=AutoAlign(p_section_1->Misc.VirtualSize,section_align);
+	p_section_1->SizeOfRawData=p_section_1->Misc.VirtualSize;
+	p_section_1->Characteristics=0xffffffff;
+	p_stdpe->NumberOfSections=1;
+	
+	return 1;
 }
 
 #endif // !defined(AFX_PETOOL_H__BC9AE6DA_8D52_4356_9802_921968C7E3DA__INCLUDED_)
