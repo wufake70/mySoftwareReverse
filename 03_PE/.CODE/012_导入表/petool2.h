@@ -533,7 +533,7 @@ void CheckIportTable(char* file_buffer)
 					&file_buffer[RVAtoFOA((__int64)p_import_->Name,file_buffer)],p_import_->Name,
 					p_import_->FirstThunk);
 		
-			// OriginalFirstThunk
+			// OriginalFirstThunk INT
 			printf("\t******** [ OriginalFirstThunk ] ********\n");
 			p_thunk=(thunk_data*)(&file_buffer[RVAtoFOA((__int64)p_import_->OriginalFirstThunk,file_buffer)]);
 			while(p_thunk->u1.Ordinal)
@@ -548,7 +548,7 @@ void CheckIportTable(char* file_buffer)
 				p_thunk++;
 				
 			}
-			// FirstThunk
+			// FirstThunk	IAT
 			printf("\t******** [ FirstThunk ] ********\n");
 			p_thunk=(thunk_data*)(&file_buffer[RVAtoFOA((__int64)p_import_->FirstThunk,file_buffer)]);
 			while(p_thunk->u1.Ordinal)
@@ -557,11 +557,13 @@ void CheckIportTable(char* file_buffer)
 				(p_thunk->u1.Ordinal & 0x80000000)?
 					printf("\tOrdinal: %d\n",
 					p_thunk->u1.Ordinal - 0x80000000)
-				:printf("\tName: %d-%s\n",
-					((import_name*)(&file_buffer[RVAtoFOA((__int64)p_thunk->u1.AddressOfData,file_buffer)]))->Hint,
-					((import_name*)(&file_buffer[RVAtoFOA((__int64)p_thunk->u1.AddressOfData,file_buffer)]))->Name);
+				:((int)p_import_->TimeDateStamp==-1)?	// if timestamp==-1,pinrtf address ...
+					printf("\tFun_Addr: 0x%x\n",p_thunk->u1.Function,p_thunk++)
+					:printf("\tName: %d-%s\n",
+						((import_name*)(&file_buffer[RVAtoFOA((__int64)p_thunk->u1.AddressOfData,file_buffer)]))->Hint,
+						((import_name*)(&file_buffer[RVAtoFOA((__int64)p_thunk->u1.AddressOfData,file_buffer)]))->Name);
 				p_thunk++;
-				
+				//system("pause>nul");
 			}
 			
 			p_import_=(import_descriptor*)(((char*)p_import_)+20);
