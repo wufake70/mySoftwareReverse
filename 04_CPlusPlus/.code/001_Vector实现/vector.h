@@ -4,6 +4,8 @@
 //#include <iostream>
 #include <Windows.h>  // 为了使用 DWORD 类型
 #include <string.h>
+#include <cstdarg>
+
 #define SUCCESS           	 1 // 成功								
 #define ERROR            	-1 // 失败								
 #define MALLOC_ERROR		-2 // 申请内存失败								
@@ -23,7 +25,8 @@ public:
 	T_ELE& operator[](DWORD dwIndex);
 
 	DWORD	at(DWORD dwIndex, OUT T_ELE* pEle);		//根据给定的索引得到元素				
-	DWORD   append(T_ELE Element);					//将元素存储到容器最后一个位置				
+	DWORD   append(T_ELE Element);					//将元素存储到容器最后一个位置	
+	DWORD	append(DWORD argc, T_ELE...);
 	VOID	pop();									//删除最后一个元素				
 	VOID	pop(DWORD dwLen);						//删除最后一个元素				
 	DWORD	insert(DWORD dwIndex, T_ELE Element);	//向指定位置新增一个元素				
