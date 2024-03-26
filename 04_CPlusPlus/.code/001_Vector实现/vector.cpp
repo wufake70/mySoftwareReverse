@@ -1,4 +1,4 @@
-#include "vector.h"												
+#include "Vector.h"												
 
 template <class T_ELE>
 Vector<T_ELE>::Vector()

@@ -44,5 +44,5 @@ private:
 	DWORD  m_dwInitSize;						//默认初始化大小				
 	T_ELE* m_pVector;							//容器指针				
 };
-#include "vector.cpp"
+#include "Vector.cpp"
 #endif  // VECTOR_H
