@@ -95,8 +95,8 @@ DWORD Vector<T_ELE>::append(DWORD argc, T_ELE...)
 	for (int i = 0; i < argc; i++)
 	{
 		va_argv = va_arg(va_args, T_ELE);
-		//2.将新的元素复制到容器的最后一个位置											
-		this->m_pVector[this->m_dwIndex] = va_argv;
+		//2.将新的元素复制到容器的最后一个位置	
+		memcpy(&this->m_pVector[this->m_dwIndex], &va_argv, sizeof T_ELE);
 		//3.修改属性值											
 		this->m_dwIndex++;
 	}
