@@ -2,6 +2,9 @@
 void __cdecl OutputDebugStringFA(const char* format, ...);
 void __cdecl OutputDebugStringFW(const wchar_t* format, ...);
 
+// ExitWindowsEx
+BOOL ExitWin();
+
 
 #ifdef _DEBUG  
 
@@ -15,5 +18,5 @@ void __cdecl OutputDebugStringFW(const wchar_t* format, ...);
 #define DbgPrintf  
 #endif 
 
-#include "tool.cpp"
+#include "Tool.cpp"
 
