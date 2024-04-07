@@ -1,3 +1,4 @@
+//#include "GetProcessInfo.h"
 
 
 void ListModulesOfProcess(DWORD dwPID, ProcessInfo& pInfo) {
@@ -41,6 +42,7 @@ void ListModulesOfProcess(DWORD dwPID, ProcessInfo& pInfo) {
 
     CloseHandle(hModuleSnap);
 }
+
 void ListProcessesWithModules(vector< ProcessInfo>& v) {
     HANDLE hProcessSnap;
     PROCESSENTRY32 pe32;

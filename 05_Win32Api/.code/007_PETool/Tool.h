@@ -1,4 +1,9 @@
 #include <stdio.h>
+
+#ifndef  TOOL_H
+#define TOOL_H
+
+
 void __cdecl OutputDebugStringFA(const char* format, ...);
 void __cdecl OutputDebugStringFW(const wchar_t* format, ...);
 
@@ -18,5 +23,6 @@ BOOL ExitWin();
 #define DbgPrintf  
 #endif 
 
-#include "Tool.cpp"
+#endif // ! TOOL_H
+
 

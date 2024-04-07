@@ -1,3 +1,5 @@
+#include "Tool.h"
+
 
 void __cdecl OutputDebugStringFA(const char* format, ...)
 {

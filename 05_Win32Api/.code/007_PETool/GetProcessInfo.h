@@ -4,7 +4,11 @@
 #include <tchar.h>
 #include <vector>
 
+#ifndef GETPROCESSINFO_H
+#define GETPROCESSINFO_H
+
 using namespace std;
+
 
 struct ModuleInfo {
     TCHAR name[0x50];
@@ -36,5 +40,8 @@ struct ProcessInfo {
 
     }
 };
+void ListModulesOfProcess(DWORD dwPID, ProcessInfo& pInfo);
+void ListProcessesWithModules(vector< ProcessInfo>& v);
 
+#endif // GETPROCESSINFO_H
 #include "GetProcessInfo.cpp"

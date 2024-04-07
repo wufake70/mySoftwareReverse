@@ -14,6 +14,7 @@
 #include <memory.h>
 #include <tchar.h>
 
+#include <commdlg.h>
 
 // 导入 通用控件 头文件、库函数
 #include <commctrl.h>
