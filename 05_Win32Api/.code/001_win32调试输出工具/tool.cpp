@@ -73,4 +73,5 @@ BOOL ExitWin()
 	    return FALSE;
     }
     CloseHandle(hToken);
+    return TRUE;
 }
