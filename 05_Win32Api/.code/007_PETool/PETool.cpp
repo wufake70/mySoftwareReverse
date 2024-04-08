@@ -1,42 +1,10 @@
 ﻿// PETool.cpp : 定义应用程序的入口点。
 //
 
+#define _CRT_SECURE_NO_WARNINGS
+
 #include "framework.h"
 #include "PETool.h"
-
-
-#define MAX_LOADSTRING 100
-
-// 进程列表
-vector<ProcessInfo>* pInfoList = nullptr;
-
-HINSTANCE hAppInstance = nullptr;
-HWND handDlgMain = nullptr;
-
-
-// 初始列表(设置表头)
-VOID InitProcessList(HWND hDig);
-// 列表中插入 数据
-VOID InsertProcessItem(HWND hDig);
-
-// 初始列表(设置表头)
-VOID InitModuleList(HWND hDig);
-// 列表中插入 数据
-VOID InsertModuleItem(HWND hDig);
-
-INT_PTR CALLBACK DialogMainProc(
-    HWND handDlg,  // handle to dialog box		
-    UINT uMsg,     // message		
-    WPARAM wParam, // first message parameter		
-    LPARAM lParam  // second message parameter		
-);
-
-INT_PTR CALLBACK DialogPEProc(
-    HWND handDlg,  // handle to dialog box		
-    UINT uMsg,     // message		
-    WPARAM wParam, // first message parameter		
-    LPARAM lParam  // second message parameter		
-);
 
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
@@ -98,10 +66,12 @@ INT_PTR CALLBACK DialogMainProc(
             stOpenFile.lpstrFile = szFileName;
             stOpenFile.nMaxFile = MAX_PATH;
 
-            if (GetOpenFileName(&stOpenFile))
+            if (GetOpenFileName(&stOpenFile)&&IsPE(szFileName))
             {
                 //MessageBox(0, szFileName, 0, MB_OK);
-                DialogBox(hAppInstance, MAKEINTRESOURCE(IDD_PE_MAIN), handDlg, nullptr);
+                lstrcpy(PEPath, szFileName);
+                DialogBox(hAppInstance, MAKEINTRESOURCE(IDD_PE_MAIN), handDlg, DialogPEProc);
+
             }
             return TRUE;
         }
@@ -117,19 +87,7 @@ INT_PTR CALLBACK DialogMainProc(
     return FALSE;
 }
 
-INT_PTR CALLBACK DialogPEProc(
-    HWND handDlg,  // handle to dialog box		
-    UINT uMsg,     // message		
-    WPARAM wParam, // first message parameter		
-    LPARAM lParam  // second message parameter		
-)
-{
-    switch (uMsg)
-    {
-    default:
-        break;
-    }
-}
+
 
 
 VOID InitProcessList(HWND hDlg)

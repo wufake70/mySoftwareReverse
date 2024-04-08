@@ -1,6 +1,7 @@
 #include "stdafx.h"
-#include "petool.h"
-#include "petool2.h"
+#include "LoadPE.h"
+#include "LoadPE2.h"
+
 
 #define _CRT_SECURE_NO_WARNINGS
 

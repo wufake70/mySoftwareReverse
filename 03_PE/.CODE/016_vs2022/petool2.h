@@ -11,7 +11,7 @@
 
 #include "petool.h"
 
-void GetPEinfo_Dos(DOS_HEADER* p_dos)
+void GetDosHeadersInfo(DOS_HEADER* p_dos)
 {
 	if(p_dos)
 	{
@@ -65,7 +65,7 @@ void GetPEinfo_Dos(DOS_HEADER* p_dos)
 
 
 
-void GetPEinfo_NT(NT_HEADERS* p_nt)
+void GetNTHeadersInfo(NT_HEADERS* p_nt)
 {
 	if(p_nt)
 	{
@@ -84,7 +84,7 @@ void GetPEinfo_NT(NT_HEADERS* p_nt)
 
 
 
-void GetPEinfo_stdPE(FILE_HEADER* p_stdpe)
+void GetFileHeadersInfo(FILE_HEADER* p_stdpe)
 {
 	if(p_stdpe)
 	{
@@ -112,7 +112,7 @@ void GetPEinfo_stdPE(FILE_HEADER* p_stdpe)
 
 
 
-void GetPEinfo_optPE(OPTIONAL_HEADER* p_optpe)
+void GetOptionalHeadersInfo(OPTIONAL_HEADER* p_optpe)
 {
 	if(p_optpe)
 	{
@@ -179,7 +179,7 @@ void GetPEinfo_optPE(OPTIONAL_HEADER* p_optpe)
 				p_optpe->SizeOfHeapCommit,
 				p_optpe->LoaderFlags,
 				p_optpe->NumberOfRvaAndSizes,
-				p_optpe->DataDirectory[16]);
+				p_optpe->DataDirectory[15]);
 	}else{
 		printf("get a NULL.\n");
 	}
@@ -187,7 +187,7 @@ void GetPEinfo_optPE(OPTIONAL_HEADER* p_optpe)
 
 
 
-void GetPEinfo_optPE64(_IMAGE_OPTIONAL_HEADER64* p_optpe64)
+void GetOptionalHeaders64Info(_IMAGE_OPTIONAL_HEADER64* p_optpe64)
 {
 	
 	if(p_optpe64)
@@ -253,7 +253,7 @@ void GetPEinfo_optPE64(_IMAGE_OPTIONAL_HEADER64* p_optpe64)
 				p_optpe64->SizeOfHeapCommit,
 				p_optpe64->LoaderFlags,
 				p_optpe64->NumberOfRvaAndSizes,
-				p_optpe64->DataDirectory[16]);
+				p_optpe64->DataDirectory[15]);
 	}else{
 		printf("get a NULL.\n");
 	}
@@ -261,7 +261,10 @@ void GetPEinfo_optPE64(_IMAGE_OPTIONAL_HEADER64* p_optpe64)
 
 void GetPEinfo_section(SECTION_HEADER* p)
 {
-	if(p==NULL) printf("get a NULL.\n");
+	if (p == NULL) {
+		printf("get a NULL.\n");
+		return;
+	}
 	char* strformat=(char* )"_IMAGE_SECTION_HEADER{"
 					"\n\tName: %s"
 					"\n\tMisc: 0x%08x"
@@ -319,7 +322,7 @@ void printCentered(const char* text, int width) {
 }
 
 // Check Directory Entry
-void checkDirectoryEntry(char* p)
+void GetDirectoryEntry(char* p)
 {
 	if(p==NULL) printf("get a NULL.\n");
 	char* directory_title_en[16]={
@@ -377,7 +380,10 @@ void checkDirectoryEntry(char* p)
 // Check Export Directory
 void CheckExportDirectory(char* p)
 {
-	if(p==NULL) printf("get a NULL.\n");
+	if (p == NULL) {
+		printf("get a NULL.\n");
+		return;
+	}
 	DATA_DIRECTORY* p_directory=NULL;
 	EXPORT_DIRECTORY* p_export=NULL;
 
@@ -439,7 +445,7 @@ void CheckExportDirectory(char* p)
 
 
 // CheckRelocationInfo
-void CheckRelocationInfo(char* p)
+void GetRelocationInfo(char* p)
 {
 	if(p==NULL)
 	{
@@ -481,7 +487,7 @@ void CheckRelocationInfo(char* p)
 				block_item=((WORD*)(&p_relocation_[1]))[j]&4095; // 获取低12位
 				block_item_type=((WORD*)(&p_relocation_[1]))[j]>>12;  //  获取高4位
 				// __int64输出问题
-				printf("%d  %08X(rva)  %08X(foa)  %d(type)\n",j,block_item+virtual_addr,(int)RVAtoFOA((__int64)(block_item+virtual_addr),p),block_item_type);
+				printf("%d  %08X(rva)  %08X(foa)  %d(type)\n",j,block_item+virtual_addr,(DWORD)RVAtoFOA((__int64)(block_item+virtual_addr),p),block_item_type);
 			}
 			system("pause>nul");
 		}else{
@@ -495,7 +501,7 @@ void CheckRelocationInfo(char* p)
 
 
 // Check Import table
-void CheckIportTable(char* file_buffer)
+void GetImportTableInfo(char* file_buffer)
 {
 	if(file_buffer==NULL)
 	{
@@ -559,7 +565,7 @@ void CheckIportTable(char* file_buffer)
 					printf("\tOrdinal: %d\n",
 					p_thunk->u1.Ordinal - 0x80000000)
 				:((int)p_import_->TimeDateStamp==-1)?	// if timestamp==-1,pinrtf address ...
-					printf("\tFun_Addr: 0x%x\n",p_thunk->u1.Function,p_thunk++)
+					printf("\tFun_Addr: 0x%x\n",(++p_thunk)->u1.Function)
 					:printf("\tName: %d-%s\n",
 						((IMPORT_BY_NAME*)(&file_buffer[RVAtoFOA((__int64)p_thunk->u1.AddressOfData,file_buffer)]))->Hint,
 						((IMPORT_BY_NAME*)(&file_buffer[RVAtoFOA((__int64)p_thunk->u1.AddressOfData,file_buffer)]))->Name);
@@ -581,7 +587,7 @@ void CheckIportTable(char* file_buffer)
 
 
 // Check Bound Import
-void CheckBoundImport(char* file_buffer)
+void GetBoundImportInfo(char* file_buffer)
 {
 	if(file_buffer==NULL)
 	{
@@ -641,7 +647,7 @@ void CheckBoundImport(char* file_buffer)
 	}
 }
 
-void CheckResourceTable(char* file_buffer)
+void GetResourceTableInfo(char* file_buffer)
 {
 	if(file_buffer==NULL)
 	{
@@ -748,7 +754,7 @@ void CheckResourceTable(char* file_buffer)
 }
 
 
-void CheckResourceInfo(char* file_buffer,size_t index)
+void GetResourceInfo(char* file_buffer,size_t index)
 {
 	if(file_buffer==NULL)
 	{
