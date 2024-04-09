@@ -75,13 +75,14 @@ INT_PTR CALLBACK DialogMainProc(
             }
             return TRUE;
         }
+
     case WM_NOTIFY:
         NMCLICK* pNMHDR = (NMCLICK*)lParam;
         if (LOWORD(wParam) == IDC_LIST_PROCESS && pNMHDR->hdr.code == NM_CLICK)
         {
             InsertModuleItem(GetDlgItem(handDlg, IDC_LIST_PROCESS));
+            return TRUE;
         }
-        return TRUE;
 
     }
     return FALSE;
@@ -92,8 +93,8 @@ INT_PTR CALLBACK DialogMainProc(
 
 VOID InitProcessList(HWND hDlg)
 {
-    LV_COLUMN lv;
-    HWND hListProcess;
+    LV_COLUMN lv = { 0 };
+    HWND hListProcess = {0};
 
     //初始化								
     //memset(&lv, 0, sizeof(LV_COLUMN));
@@ -139,7 +140,7 @@ VOID InsertProcessItem(HWND hListProcess)
 
     TCHAR name[0x50];
     // 迭代器 遍历列表
-    for (auto it = pInfoListRef.begin(); it != pInfoListRef.end(); it++)
+    for (auto it = pInfoListRef.rbegin(); it != pInfoListRef.rend(); it++)
     {
         memcpy(name, it->name, 0x50 * sizeof(TCHAR));
         item.pszText = name;
@@ -170,8 +171,8 @@ VOID InsertProcessItem(HWND hListProcess)
 
 VOID InitModuleList(HWND hDlg)
 {
-    LV_COLUMN lv;
-    HWND hListModule;
+    LV_COLUMN lv = { 0 };
+    HWND hListModule = {0};
 
     //初始化								
     //memset(&lv, 0, sizeof(LV_COLUMN));
@@ -236,7 +237,7 @@ VOID InsertModuleItem(HWND hListProcess)
         if (pIt->pid == pId)
         {
             // 迭代器 遍历列表
-            for (auto it = pIt->moduleListPtr->begin(); it != pIt->moduleListPtr->end(); it++)
+            for (auto it = pIt->moduleListPtr->rbegin(); it != pIt->moduleListPtr->rend(); it++)
             {
                 memcpy(name, it->name, 0x50 * sizeof(TCHAR));
                 item.pszText = name;

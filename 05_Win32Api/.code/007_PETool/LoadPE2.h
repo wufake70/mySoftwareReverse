@@ -17,7 +17,7 @@ void GetDosHeadersInfo(DOS_HEADER* p_dos)
 {
 	if(p_dos)
 	{
-		TCHAR* strformat=(TCHAR* )"_IMAGE_DOS_HEADER{\n\t"
+		TCHAR* strformat=(TCHAR* )TEXT("_IMAGE_DOS_HEADER{\n\t"
 						"e_magic: 0x%04x\n\t"
 						"e_cblp: 0x%04x\n\t"
 						"e_cp: 0x%04x\n\t"
@@ -35,7 +35,7 @@ void GetDosHeadersInfo(DOS_HEADER* p_dos)
 						"e_oemid: 0x%04x\n\t"
 						"e_oeminfo: 0x%04x\n\t"
 						"e_res2[10]: 0x%04x%04x%04x%04x%04x%04x%04x%04x%04x%04x\n\t"
-						"e_lfanew: 0x%04x\n}";
+						"e_lfanew: 0x%04x\n}");
 
 		//DbgPrintf(strformat,
 			//p_dos->e_magic,
@@ -71,9 +71,9 @@ void GetNtHeadersInfo(NT_HEADERS* p_nt)
 {
 	if(p_nt)
 	{
-		TCHAR* strformat=(TCHAR* )"_IMAGE_NT_HEADERS{\n\tSignature: 0x%08x"
+		TCHAR* strformat=(TCHAR* )TEXT("_IMAGE_NT_HEADERS{\n\tSignature: 0x%08x"
 						"\n\tFileHeader(struct): 0x%08x"
-						"\n\tOptionalHeader(struct): 0x%08x\n}";
+						"\n\tOptionalHeader(struct): 0x%08x\n}");
 		//DbgPrintf(strformat,\
 				p_nt->Signature,\
 				&p_nt->FileHeader,\
@@ -90,14 +90,14 @@ void GetFileHeadersInfo(FILE_HEADER* p_stdpe)
 {
 	if(p_stdpe)
 	{
-		TCHAR* strformat=(TCHAR* )"_IMAGE_FILE_HEADER{"
+		TCHAR* strformat=(TCHAR* )TEXT("_IMAGE_FILE_HEADER{"
 						"\n\tMachine: 0x%08x"
 						"\n\tNumberOfSections: 0x%08x"
 						"\n\tTimeDateStamp: 0x%08x"
 						"\n\tPointerToSymbolTable: 0x%08x"
 						"\n\tNumberOfSymbols: 0x%08x"
 						"\n\tSizeOfOptionalHeader: 0x%08x"
-						"\n\tCharacteristics: 0x%08x\n}";
+						"\n\tCharacteristics: 0x%08x\n}");
 		//DbgPrintf(strformat,
 				//p_stdpe->Machine,
 				//p_stdpe->NumberOfSections,
@@ -118,7 +118,7 @@ void GetOptionalHeadersInfo(OPTIONAL_HEADER* p_optpe)
 {
 	if(p_optpe)
 	{
-		TCHAR* strformat=(TCHAR* )"_IMAGE_OPTIONAL_HEADER32{"
+		TCHAR* strformat=(TCHAR* )TEXT("_IMAGE_OPTIONAL_HEADER32{"
 						"\n\tMagic: 0x%08x"
 						"\n\tMajorLinkerVersion: 0x%08x"
 						"\n\tMinorLinkerVersion: 0x%08x"
@@ -149,7 +149,7 @@ void GetOptionalHeadersInfo(OPTIONAL_HEADER* p_optpe)
 						"\n\tSizeOfHeapCommit: 0x%08x"
 						"\n\tLoaderFlags: 0x%08x"
 						"\n\tNumberOfRvaAndSizes: 0x%08x"
-						"\n\tDataDirectory[16]: 0x%08x\n}";
+						"\n\tDataDirectory[16]: 0x%08x\n}");
 		//DbgPrintf(strformat,
 				//p_optpe->Magic,
 				//p_optpe->MajorLinkerVersion,
@@ -194,7 +194,7 @@ void GetOptionalHeaders64Info(_IMAGE_OPTIONAL_HEADER64* p_optpe64)
 	
 	if(p_optpe64)
 	{
-		TCHAR* strformat=(TCHAR* )"_IMAGE_OPTIONAL_HEADER64{"
+		TCHAR* strformat=(TCHAR* )TEXT("_IMAGE_OPTIONAL_HEADER64{"
 						"\n\tMagic: 0x%08x"
 						"\n\tMajorLinkerVersion: 0x%08x"
 						"\n\tMinorLinkerVersion: 0x%08x"
@@ -224,7 +224,7 @@ void GetOptionalHeaders64Info(_IMAGE_OPTIONAL_HEADER64* p_optpe64)
 						"\n\tSizeOfHeapCommit: 0x%016I64x"
 						"\n\tLoaderFlags: 0x%08x"
 						"\n\tNumberOfRvaAndSizes: 0x%08x"
-						"\n\tDataDirectory[16]: 0x%08x\n}";
+						"\n\tDataDirectory[16]: 0x%08x\n}");
 		//DbgPrintf(strformat,
 				//p_optpe64->Magic,
 				//p_optpe64->MajorLinkerVersion,
@@ -267,7 +267,7 @@ void GetSectionHeadersInfo(SECTION_HEADER* p)
 		//DbgPrintf(TEXT("get a NULL.\n"));
 		return;
 	}
-	TCHAR* strformat=(TCHAR* )"_IMAGE_SECTION_HEADER{"
+	TCHAR* strformat=(TCHAR* )TEXT("_IMAGE_SECTION_HEADER{"
 					"\n\tName: %s"
 					"\n\tMisc: 0x%08x"
 					"\n\tVirtualAddress: 0x%08x"
@@ -277,7 +277,7 @@ void GetSectionHeadersInfo(SECTION_HEADER* p)
 					"\n\tPointerToLinenumbers: 0x%08x"
 					"\n\tNumberOfRelocations: 0x%08x"
 					"\n\tNumberOfLinenumbers: 0x%08x"
-					"\n\tCharacteristics: 0x%08x\n}";
+					"\n\tCharacteristics: 0x%08x\n}");
 	char section_name[9];
 	strcpy(section_name,(const char*)p->Name);
 	section_name[8]='\0';

@@ -348,29 +348,6 @@ int CombineSection(char* img_buffer)
 }
 
 
-// Directory Entry
-DATA_DIRECTORY* GetDirectoryEntryPtr(char* file_buffer,int index)
-{
-	if(file_buffer==nullptr)
-	{
-		DbgPrintf(TEXT("Get a nullptr.\n"));
-		return nullptr;
-	}
-	
-	FILE_HEADER* p_stdpe=nullptr;
-	OPTIONAL_HEADER* p_optpe=nullptr;
-	OPTIONAL_HEADER64* p_optpe64=nullptr;
-
-	p_stdpe=GetFileHeadersPtr(file_buffer);
-	if(p_stdpe->Machine==0x14c)
-	{
-		p_optpe=GetOptionalHeadersPtr(file_buffer);
-		return &p_optpe->DataDirectory[index];
-	}else{
-		p_optpe64=GetOptionalHeaders64Ptr(file_buffer);
-		return &p_optpe64->DataDirectory[index];
-	}
-}
 
 
 

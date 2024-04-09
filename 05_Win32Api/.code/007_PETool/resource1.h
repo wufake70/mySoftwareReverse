@@ -4,10 +4,13 @@
 //
 #define IDD_DIALOG_MAIN                 101
 #define IDD_PE_MAIN                     103
+#define IDD_PE_SECTION_MAIN             107
+#define IDD_PE_DIRECTORY_MAIN           108
 #define IDC_PE_CHECK                    1001
 #define IDC_PE_LOAD                     1001
 #define IDC_LIST1                       1002
 #define IDC_LIST_MODULE                 1002
+#define IDC_LIST_SECTION                1002
 #define IDC_LIST_PROCESS                1003
 #define IDC_PE_ENTRYPOINT               1007
 #define IDC_PE_IMGBASE                  1008
@@ -35,21 +38,54 @@
 #define IDC_PE_HEADERSSIZE_2            1030
 #define IDC_PE_FEATURE                  1031
 #define IDC_PE_FEATURE_2                1032
-#define IDC_PE_                         1033
 #define IDC_PE_CHECKSUM                 1033
 #define IDC_PE_CHECKSUM_2               1034
 #define IDC_PE_MACHINE                  1035
 #define IDC_PE_MACHINE_2                1036
 #define IDC_PE_DIRECTORYNUM             1037
 #define IDC_PE_DIRECTORYNUM_2           1038
+#define IDC_PE_SECTION_OPEN             1039
+#define IDC_PE_DIRECTORY_OPEN           1040
+#define IDC_PE_D_EXPORT_RVA             1042
+#define IDC_PE_D_EXPORT_SIZE            1043
+#define IDC_PE_D_IMPORT_RVA             1044
+#define IDC_PE_D_IMPORT_SIZE            1045
+#define IDC_PE_D_RES_RVA                1046
+#define IDC_PE_D_RES_SIZE               1047
+#define IDC_PE_D_ERROR_RVA              1048
+#define IDC_PE_D_ERROR_SIZE             1049
+#define IDC_PE_D_SAFETY_RVA             1050
+#define IDC_PE_D_SAFETY_SIZE            1051
+#define IDC_PE_D_RELOCATION_RVA         1052
+#define IDC_PE_D_RELOCATION_SIZE        1053
+#define IDC_PE_D_DEBUG_RVA              1054
+#define IDC_PE_D_DEBUG_SIZE             1055
+#define IDC_PE_D_SDATA_RVA              1056
+#define IDC_PE_D_SDATA_SIZE             1057
+#define IDC_PE_D_GP_RVA                 1058
+#define IDC_PE_D_GP_SIZE                1059
+#define IDC_PE_D_TLS_RVA                1060
+#define IDC_PE_D_TLS_SIZE               1061
+#define IDC_PE_D_CONFIG_RVA             1062
+#define IDC_PE_D_CONFIG_SIZE            1063
+#define IDC_PE_D_BOUND_RVA              1064
+#define IDC_PE_D_BOUND_SIZE             1065
+#define IDC_PE_D_IAD_RVA                1066
+#define IDC_PE_D_IAD_SIZE               1067
+#define IDC_PE_DELAY_RVA                1068
+#define IDC_PE_DELAY_SIZE               1069
+#define IDC_PE_COM_RVA                  1070
+#define IDC_PE_COM_SIZE                 1071
+#define IDC_PE_RESERVED_RVA             1072
+#define IDC_PE_RESERVED_SIZE            1073
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        105
+#define _APS_NEXT_RESOURCE_VALUE        109
 #define _APS_NEXT_COMMAND_VALUE         40001
-#define _APS_NEXT_CONTROL_VALUE         1039
+#define _APS_NEXT_CONTROL_VALUE         1074
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

@@ -489,5 +489,31 @@ DWORD GetFileBufferSize(BYTE* file_buffer)
 }
 
 
+// Directory Entry
+DATA_DIRECTORY* GetDirectoryEntryPtr(BYTE* file_buffer, int index)
+{
+	if (file_buffer == nullptr)
+	{
+		return nullptr;
+	}
+
+	FILE_HEADER* p_stdpe = nullptr;
+	OPTIONAL_HEADER* p_optpe = nullptr;
+	OPTIONAL_HEADER64* p_optpe64 = nullptr;
+
+	p_stdpe = GetFileHeadersPtr(file_buffer);
+	if (p_stdpe->Machine == 0x14c)
+	{
+		p_optpe = GetOptionalHeadersPtr(file_buffer);
+		return &p_optpe->DataDirectory[index];
+	}
+	else {
+		p_optpe64 = GetOptionalHeaders64Ptr(file_buffer);
+		return &p_optpe64->DataDirectory[index];
+	}
+}
+
+
+
 
 #endif // !defined(AFX_PETOOL_H__BC9AE6DA_8D52_4356_9802_921968C7E3DA__INCLUDED_)
