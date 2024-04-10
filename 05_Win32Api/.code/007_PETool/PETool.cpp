@@ -25,7 +25,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     InitCommonControlsEx(&ice);
     
     // 初始化Dialog
-    DialogBox(hAppInstance,MAKEINTRESOURCE(IDD_DIALOG_MAIN),nullptr, DialogMainProc);
+    DialogBox(hAppInstance,MAKEINTRESOURCE(IDD_DLG_MAIN),nullptr, DialogMainProc);
 
     return 0;
 }
@@ -39,6 +39,7 @@ INT_PTR CALLBACK DialogMainProc(
 {
     handDlgMain = handDlg;
     OPENFILENAME stOpenFile;
+    NMCLICK* pNMHDR = { 0 };
 
     switch (uMsg)
     {
@@ -47,15 +48,40 @@ INT_PTR CALLBACK DialogMainProc(
         InitModuleList(handDlg);
         return TRUE;
 
+    case WM_CONTEXTMENU:    // 右键菜单
+    {
+        //// 获取鼠标右键点击位置
+        //int xPos = LOWORD(lParam);
+        //int yPos = HIWORD(lParam);
+
+        //// 加载菜单资源
+        //HMENU hMenu = LoadMenu(hAppInstance, MAKEINTRESOURCE(IDR_MENU));
+        //HMENU hContextMenu = GetSubMenu(hMenu, 0);
+
+        //// 显示右键菜单
+        //TrackPopupMenu(hContextMenu, TPM_LEFTALIGN | TPM_LEFTBUTTON, xPos, yPos, 0, handDlg, NULL);
+
+        //// 销毁菜单资源
+        //DestroyMenu(hMenu);
+
+        return TRUE;
+    }
+
     case WM_COMMAND:
         switch (LOWORD(wParam))
         {
         case IDCANCEL:
             EndDialog(handDlg, 0);
             return TRUE;
+        case ID_MENU_REFRESH:
+            pInfoList->clear();
+            ListProcessesWithModules(pInfoList[0]);
+            InitProcessList(handDlg);
+            InitModuleList(handDlg);
+            return TRUE;
 
         case IDC_PE_LOAD:  // 打开pe文件，获取路径
-            TCHAR szPESuffix[100] = TEXT("Executable Files\0 *.exe;*.dll;*.scr;*.drv;*.sys;");
+            TCHAR szPESuffix[100] = TEXT("PE Files\0 *.exe;*.dll;*.scr;*.drv;*.sys;");
             TCHAR szFileName[256];
             memset(szFileName,0,256);
             memset(&stOpenFile,0,sizeof stOpenFile);
@@ -77,11 +103,33 @@ INT_PTR CALLBACK DialogMainProc(
         }
 
     case WM_NOTIFY:
-        NMCLICK* pNMHDR = (NMCLICK*)lParam;
-        if (LOWORD(wParam) == IDC_LIST_PROCESS && pNMHDR->hdr.code == NM_CLICK)
+        pNMHDR = (NMCLICK*)lParam;
+        if (LOWORD(wParam) == IDC_LIST_PROCESS)
         {
-            InsertModuleItem(GetDlgItem(handDlg, IDC_LIST_PROCESS));
-            return TRUE;
+            switch (pNMHDR->hdr.code)
+            {
+            case NM_CLICK:
+                InsertModuleItem(GetDlgItem(handDlg, IDC_LIST_PROCESS));
+                return TRUE;
+
+            case NM_RCLICK:
+                // 获取鼠标右键点击位置
+                POINT pt = { 0 };
+                GetCursorPos(&pt);
+
+                // 加载菜单资源
+                HMENU hMenu = LoadMenu(hAppInstance, MAKEINTRESOURCE(IDR_MENU));
+                // 获取第一个menu
+                HMENU hContextMenu = GetSubMenu(hMenu, 0);
+
+                // 显示右键菜单
+                TrackPopupMenu(hContextMenu, TPM_LEFTALIGN | TPM_LEFTBUTTON, pt.x, pt.y, 0, handDlg, NULL);
+
+                // 销毁菜单资源
+                DestroyMenu(hMenu);
+
+                return TRUE;
+            }
         }
 
     }
@@ -95,6 +143,7 @@ VOID InitProcessList(HWND hDlg)
 {
     LV_COLUMN lv = { 0 };
     HWND hListProcess = {0};
+    TCHAR szText[0x20] = { 0 };
 
     //初始化								
     //memset(&lv, 0, sizeof(LV_COLUMN));
@@ -103,9 +152,13 @@ VOID InitProcessList(HWND hDlg)
     //设置整行选中								
     SendMessage(hListProcess, LVM_SETEXTENDEDLISTVIEWSTYLE, LVS_EX_FULLROWSELECT, LVS_EX_FULLROWSELECT);
 
+    for (int i = 0; i < 4; i++) ListView_DeleteColumn(hListProcess, 0);
+    for (int i = 0; i < 500; i++) ListView_DeleteItem(hListProcess, 0);
+
+    wsprintf(szText,TEXT("进程 (%d)"),pInfoList[0].size());
     //第一列								
     lv.mask = LVCF_TEXT | LVCF_WIDTH | LVCF_SUBITEM;
-    lv.pszText = (PTCHAR)TEXT("进程");				//列标题				
+    lv.pszText = szText;				//列标题				
     lv.cx = 200;								//列宽
     lv.iSubItem = 0;                            // 列号
     //ListView_InsertColumn(hListProcess, 0, &lv);								
@@ -142,7 +195,7 @@ VOID InsertProcessItem(HWND hListProcess)
     // 迭代器 遍历列表
     for (auto it = pInfoListRef.rbegin(); it != pInfoListRef.rend(); it++)
     {
-        memcpy(name, it->name, 0x50 * sizeof(TCHAR));
+        wsprintf(name,TEXT("[%03d] %s"), distance(it,pInfoListRef.rend()), it->name);
         item.pszText = name;
         //wprintf(item.pszText, TEXT("%s"), &it->name);
         item.iItem = 0;     // 行
@@ -181,9 +234,12 @@ VOID InitModuleList(HWND hDlg)
     //设置整行选中								
     SendMessage(hListModule, LVM_SETEXTENDEDLISTVIEWSTYLE, LVS_EX_FULLROWSELECT, LVS_EX_FULLROWSELECT);
 
+    for (int i = 0; i < 4; i++) ListView_DeleteColumn(hListModule, 0);
+    for (int i = 0; i < 300; i++) ListView_DeleteItem(hListModule, 0);
+
     //第一列								
     lv.mask = LVCF_TEXT | LVCF_WIDTH | LVCF_SUBITEM;
-    lv.pszText = (PTCHAR)TEXT("模块");				//列标题				
+    lv.pszText = (PTCHAR)TEXT("模块 (0)");				//列标题				
     lv.cx = 200;								//列宽
     lv.iSubItem = 0;                            // 列号
     //ListView_InsertColumn(hListProcess, 0, &lv);								
@@ -206,9 +262,12 @@ VOID InitModuleList(HWND hDlg)
 VOID InsertModuleItem(HWND hListProcess)
 {
     DWORD dwRowNum = 0;
-    TCHAR pIdStr[0x50] = { 0 };
+    TCHAR pIdStr[0x10] = { 0 };
     ULONG64 pId = 0;
-    LV_ITEM lv = { 0 };
+    TCHAR szText[0x50] = {0};
+    LV_ITEM lvItem = { 0 };
+    LV_COLUMN lvColumn = { 0 };
+
     vector<ProcessInfo>& pInfoListRef = pInfoList[0];
 
     // 发送消息 hListProcess窗口，被选中的行号是多少
@@ -220,27 +279,40 @@ VOID InsertModuleItem(HWND hListProcess)
     }
 
     // 获取pid
-    lv.iSubItem = 1;        // 2 columns
-    lv.pszText = pIdStr;       // pId
-    lv.cchTextMax = 0x50;   // 字段最大长度
+    lvItem.iSubItem = 1;        // 2 columns
+    lvItem.pszText = pIdStr;       // pId
+    lvItem.cchTextMax = 0x50;   // 字段最大长度
     // 获取选中行 pid
-    SendMessage(hListProcess, LVM_GETITEMTEXT, dwRowNum, (DWORD)&lv);
+    SendMessage(hListProcess, LVM_GETITEMTEXT, dwRowNum, (DWORD)&lvItem);
+
     pId = wcstol(pIdStr, 0, 16);
     HWND hListModule = GetDlgItem(handDlgMain, IDC_LIST_MODULE);
+
 
     LV_ITEM item = { 0 };
     item.mask = LVIF_TEXT;
 
-    TCHAR name[0x50];
+    //memset(&lvColumn,0,sizeof lvColumn);
+    lvColumn.mask = LVCF_TEXT | LVCF_WIDTH | LVCF_SUBITEM;
+    lvColumn.pszText = szText;
+    lvColumn.cx = 200;								//列宽
+    lvColumn.iSubItem = 0;                            // 列号
+
     for (auto pIt = pInfoListRef.begin(); pIt != pInfoListRef.end(); pIt++)
     {
         if (pIt->pid == pId)
         {
+            for (int i = 0; i < 300; i++) ListView_DeleteItem(hListModule, 0);
+
+            wsprintf(szText,TEXT("模块 (%d)"), pIt->moduleListPtr[0].size());
+            SendMessage(hListModule, LVM_SETCOLUMN, 0, (LPARAM)&lvColumn);
+
             // 迭代器 遍历列表
             for (auto it = pIt->moduleListPtr->rbegin(); it != pIt->moduleListPtr->rend(); it++)
             {
-                memcpy(name, it->name, 0x50 * sizeof(TCHAR));
-                item.pszText = name;
+                memcpy(szText, it->name, 0x50 * sizeof(TCHAR));
+                wsprintf(szText, TEXT("[%03d] %s"), distance(it, pIt->moduleListPtr->rend()), it->name);
+                item.pszText = szText;
                 item.iItem = 0;     // 行
                 item.iSubItem = 0;  // 列
                 SendMessage(hListModule, LVM_INSERTITEM, 0, (LPARAM)&item);
@@ -255,15 +327,9 @@ VOID InsertModuleItem(HWND hListProcess)
                 item.iSubItem = 2;
                 ListView_SetItem(hListModule, &item);
             }
-
-            if (pIt->moduleListPtr->size() == 0) {
-                for (int i = 0; i < 300; i++) ListView_DeleteItem(hListModule, 0);
-            }
             break;
         }
     }
 
 }
-
-
 

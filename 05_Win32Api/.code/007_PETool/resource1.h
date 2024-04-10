@@ -2,10 +2,11 @@
 // Microsoft Visual C++ 生成的包含文件。
 // 供 PETool.rc 使用
 //
-#define IDD_DIALOG_MAIN                 101
+#define IDD_DLG_MAIN                    101
 #define IDD_PE_MAIN                     103
 #define IDD_PE_SECTION_MAIN             107
 #define IDD_PE_DIRECTORY_MAIN           108
+#define IDR_MENU                        109
 #define IDC_PE_CHECK                    1001
 #define IDC_PE_LOAD                     1001
 #define IDC_LIST1                       1002
@@ -78,14 +79,22 @@
 #define IDC_PE_COM_SIZE                 1071
 #define IDC_PE_RESERVED_RVA             1072
 #define IDC_PE_RESERVED_SIZE            1073
+#define IDC_PE_FILEPATH                 1074
+#define ID_J_J                          40001
+#define ID_J_J40002                     40002
+#define ID_REFRESH                      40003
+#define ID_REFRESH_333                  40004
+#define ID_DFAS_KDFJAS                  40005
+#define ID                              40006
+#define ID_MENU_REFRESH                 40007
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        109
-#define _APS_NEXT_COMMAND_VALUE         40001
-#define _APS_NEXT_CONTROL_VALUE         1074
+#define _APS_NEXT_RESOURCE_VALUE        110
+#define _APS_NEXT_COMMAND_VALUE         40008
+#define _APS_NEXT_CONTROL_VALUE         1075
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

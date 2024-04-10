@@ -1,7 +1,6 @@
 #pragma once
 
 
-
 INT_PTR CALLBACK DialogPEProc(
     HWND handDlg,  // handle to dialog box		
     UINT uMsg,     // message		
@@ -52,6 +51,8 @@ VOID InitDialogPE(HWND handDlg, TCHAR* PEpath)
         LOAD_LIBRARY_AS_DATAFILE | LOAD_LIBRARY_AS_IMAGE_RESOURCE);
     if (hResModule) {
 
+        hwndStaticText = GetDlgItem(handDlg, IDC_PE_FILEPATH);
+        SetWindowText(hwndStaticText, PEPath);
 
         VOID* headerPtr=nullptr;
         headerPtr = (VOID*)GetDosHeadersPtr((BYTE*)hResModule-2);
@@ -130,6 +131,7 @@ VOID InitDialogPE(HWND handDlg, TCHAR* PEpath)
         else {
             headerPtr = (VOID*)GetOptionalHeadersPtr((BYTE*)hResModule - 2);
             hwndStaticText = GetDlgItem(handDlg, IDC_PE_ENTRYPOINT_2);
+            OPTIONAL_HEADER64 a = ((OPTIONAL_HEADER64*)headerPtr)[0];
             wsprintf(text, TEXT(" 0x%I64X"), ((OPTIONAL_HEADER64*)headerPtr)->ImageBase + \
                 ((OPTIONAL_HEADER64*)headerPtr)->AddressOfEntryPoint);
             SetWindowText(hwndStaticText, text);
@@ -147,7 +149,6 @@ VOID InitDialogPE(HWND handDlg, TCHAR* PEpath)
             SetWindowText(hwndStaticText, text);
 
             hwndStaticText = GetDlgItem(handDlg, IDC_PE_IMGBASE_2);
-            OPTIONAL_HEADER64* a = (OPTIONAL_HEADER64*)headerPtr;
             wsprintf(text, TEXT(" 0x%I64X"), ((OPTIONAL_HEADER64*)headerPtr)->ImageBase);
             SetWindowText(hwndStaticText, text);
 
