@@ -16,6 +16,7 @@
 #define IDC_STATIC_TEXT2                1003
 #define ID_SUSPEND                      1004
 #define ID_RESUME                       1005
+#define IDC_STATIC_TEXT3                1007
 #define ID_EXIT                         1008
 #define ID_EXIT2                        1009
 #define ID_TEXT                         1009
