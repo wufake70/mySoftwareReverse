@@ -19,8 +19,6 @@ BOOL APIENTRY DllMain( HMODULE hModule,
     {
     case DLL_PROCESS_ATTACH:
         MessageBox(0,0,L"hello",0);
-        //ShellExecute(NULL, L"open", L"cmd.exe", NULL, NULL, SW_SHOWNORMAL);
-        //ShellExecute(NULL, L"open", L"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe", L"https://hao.360.com", NULL, SW_SHOWNORMAL);
         break;
     case DLL_THREAD_ATTACH:
     case DLL_THREAD_DETACH:

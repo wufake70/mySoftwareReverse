@@ -1,0 +1,12 @@
+﻿  WinDesktopTest.cpp
+D:\.important\mySoftwareReverse\05_Win32Api\.code\012_创建被挂起的进程\A.cpp(99,64): error C2039: "Ebx": 不是 "_CONTEXT" 的成员
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\um\winnt.h(4206,54): message : 参见“_CONTEXT”的声明
+D:\.important\mySoftwareReverse\05_Win32Api\.code\012_创建被挂起的进程\A.cpp(99,2): error C2660: “ReadProcessMemory”: 函数不接受 4 个参数
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\um\memoryapi.h(152,1): message : 参见“ReadProcessMemory”的声明
+D:\.important\mySoftwareReverse\05_Win32Api\.code\012_创建被挂起的进程\A.cpp(99,2): message : 尝试匹配参数列表“(HANDLE, DWORD *, int, int)”时
+D:\.important\mySoftwareReverse\05_Win32Api\.code\012_创建被挂起的进程\A.cpp(100,64): error C2039: "Eax": 不是 "_CONTEXT" 的成员
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\um\winnt.h(4206,54): message : 参见“_CONTEXT”的声明
+D:\.important\mySoftwareReverse\05_Win32Api\.code\012_创建被挂起的进程\A.cpp(122,37): warning C4311: “类型强制转换”: 从“HANDLE”到“DWORD”的指针截断
+D:\.important\mySoftwareReverse\05_Win32Api\.code\012_创建被挂起的进程\A.cpp(122,37): warning C4302: “类型强制转换”: 从“HANDLE”到“DWORD”截断
+D:\.important\mySoftwareReverse\05_Win32Api\.code\012_创建被挂起的进程\A.cpp(122,63): warning C4311: “类型强制转换”: 从“HANDLE”到“DWORD”的指针截断
+D:\.important\mySoftwareReverse\05_Win32Api\.code\012_创建被挂起的进程\A.cpp(122,63): warning C4302: “类型强制转换”: 从“HANDLE”到“DWORD”截断
