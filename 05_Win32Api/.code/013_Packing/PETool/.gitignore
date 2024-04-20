@@ -1,6 +1,6 @@
 .vs/
-!Debug/*.exe
-Debug/
+# !Debug/*.exe
+# Debug/
 Release/
 x64/
 
