@@ -3,4 +3,5 @@ Debug/
 Release/
 x64/
 
-Debug/!*.exe
+
+!*.exe
