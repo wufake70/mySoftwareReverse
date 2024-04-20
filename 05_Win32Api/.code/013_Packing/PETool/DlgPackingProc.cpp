@@ -36,15 +36,15 @@ INT_PTR CALLBACK DialogPackingProc(
         case IDC_BUTTON_SHELL_PATH:
             wsprintf(szPESuffix, TEXT("%s"), TEXT("exe files\0 *.exe;"));
             memset(szFilePath, 0, 256);
-            //memset(&stOpenFile, 0, sizeof stOpenFile);
-            //stOpenFile.lStructSize = sizeof OPENFILENAME;
-            //stOpenFile.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST;
-            //stOpenFile.hwndOwner = handDlg;
-            //stOpenFile.lpstrFilter = szPESuffix;
-            //stOpenFile.lpstrFile = szFilePath;
-            //stOpenFile.nMaxFile = MAX_PATH;
+            memset(&stOpenFile, 0, sizeof stOpenFile);
+            stOpenFile.lStructSize = sizeof OPENFILENAME;
+            stOpenFile.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST;
+            stOpenFile.hwndOwner = handDlg;
+            stOpenFile.lpstrFilter = szPESuffix;
+            stOpenFile.lpstrFile = szFilePath;
+            stOpenFile.nMaxFile = MAX_PATH;
             GetModuleFileName(hAppInstance, szFilePath, MAX_PATH);
-            if (IsPE(szFilePath))
+            if (GetOpenFileName(&stOpenFile) && IsPE32(szFilePath)) // GetOpenFileName(&stOpenFile) &&
             {
                 SetWindowText(GetDlgItem(handDlg, IDC_STATIC_SHELL_PATH), szFilePath);
             }
@@ -62,7 +62,7 @@ INT_PTR CALLBACK DialogPackingProc(
             stOpenFile.lpstrFile = szFilePath;
             stOpenFile.nMaxFile = MAX_PATH;
 
-            if (GetOpenFileName(&stOpenFile) && IsPE(szFilePath))
+            if (GetOpenFileName(&stOpenFile) && IsPE32(szFilePath))
             {
                 SetWindowText(GetDlgItem(handDlg, IDC_STATIC_SRC_PATH),szFilePath);
             }
@@ -79,14 +79,6 @@ INT_PTR CALLBACK DialogPackingProc(
                                     OPEN_EXISTING,
                                     FILE_ATTRIBUTE_NORMAL,
                                     NULL);
-            lstrcat(szFilePath,TEXT("new.exe"));
-            hOutFile = CreateFile(szFilePath,
-                                  GENERIC_WRITE, 
-                                  0, 
-                                  NULL, 
-                                  CREATE_ALWAYS, 
-                                  FILE_ATTRIBUTE_NORMAL, 
-                                  NULL);
 
             GetWindowText(GetDlgItem(handDlg, IDC_STATIC_SRC_PATH), szFilePath, MAX_PATH);
             if (!IsPE(szFilePath))
@@ -101,6 +93,15 @@ INT_PTR CALLBACK DialogPackingProc(
                                 OPEN_EXISTING,
                                 FILE_ATTRIBUTE_NORMAL,
                                 NULL);
+            ZeroMemory(&szFilePath[(lstrlen(szFilePath)-4)], 4);
+            lstrcat(szFilePath,TEXT("_shell.exe"));
+            hOutFile = CreateFile(szFilePath,
+                                  GENERIC_WRITE, 
+                                  0, 
+                                  NULL, 
+                                  CREATE_ALWAYS, 
+                                  FILE_ATTRIBUTE_NORMAL, 
+                                  NULL);
             
 
 
@@ -144,18 +145,11 @@ INT_PTR CALLBACK DialogPackingProc(
                     解密src，创建挂起的进程
                 */
 
-                //LPBYTE lpImgBuffer = nullptr;
-                //lpImgBuffer = (LPBYTE)HeapAlloc(GetProcessHeap(),0,
-                //                GetFileHeadersPtr(lpSrcFileBuffer)->Machine==0x14c?
-                //                GetOptionalHeadersPtr(lpSrcFileBuffer)->ImageBase:
-                //                (DWORD)GetOptionalHeaders64Ptr(lpSrcFileBuffer)->ImageBase);
-                //                
-                //DWORD result = FileBufferToImageBuffer(lpSrcFileBuffer, lpImgBuffer);
-
                 // 写入新文件
+                // 新增节，需要保证,新文件大小 >= 新增节大小+其foa
                 if (WriteFile(hOutFile,
                     lpShellFileBuffer,
-                    GetFileSize(hSrcFile, nullptr) + GetFileSize(hShellFile, nullptr),
+                    newSectionHeader[0].SizeOfRawData + GetFileSize(hShellFile, nullptr),
                     0,
                     nullptr))
                 {

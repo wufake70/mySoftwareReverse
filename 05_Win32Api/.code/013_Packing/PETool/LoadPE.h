@@ -40,6 +40,7 @@ BOOL IsPE(TBYTE* m_strFilePath)
 		return FALSE;
 	}
 
+
 	SetFilePointer(hFile, DosHeader.e_lfanew, NULL, FILE_BEGIN);
 	//读取PE的NT头字节
 	if (!ReadFile(hFile, &dwNTSignature, sizeof(dwNTSignature), &dwReadLen, NULL))
@@ -50,6 +51,68 @@ BOOL IsPE(TBYTE* m_strFilePath)
 	if (dwNTSignature != IMAGE_NT_SIGNATURE)
 	{
 		//MessageBox("不是PE文件");
+		CloseHandle(hFile);
+		return FALSE;
+	}
+
+	CloseHandle(hFile);
+	hFile = INVALID_HANDLE_VALUE;
+
+	//MessageBox("是PE文件");
+	return TRUE;
+}
+BOOL IsPE32(TBYTE* m_strFilePath)
+{
+	// TODO: Add your control notification handler code here
+
+	HANDLE    hFile = INVALID_HANDLE_VALUE; //打开的PE文件句柄
+	IMAGE_DOS_HEADER DosHeader = { 0 };
+	DWORD    dwReadLen = 0;
+	DWORD    dwNTSignature = 0;
+	WORD	 dwMachine = 0;
+
+	//创建文件
+	hFile = CreateFile(m_strFilePath, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	if (hFile == INVALID_HANDLE_VALUE)
+	{
+		//MessageBox("打开文件失败");
+		return FALSE;
+	}
+
+	//读取文件
+	if (!ReadFile(hFile, &DosHeader, sizeof(DosHeader), &dwReadLen, NULL))
+	{
+		CloseHandle(hFile);
+		//MessageBox("读取文件失败");
+		return FALSE;
+	}
+	//判断DOS头部是否为MZ
+	if (DosHeader.e_magic != IMAGE_DOS_SIGNATURE)
+	{
+		CloseHandle(hFile);
+		//MessageBox("不是PE文件");
+		return FALSE;
+	}
+
+
+	SetFilePointer(hFile, DosHeader.e_lfanew, NULL, FILE_BEGIN);
+	//读取PE的NT头字节
+	if (!ReadFile(hFile, &dwNTSignature, sizeof(dwNTSignature), &dwReadLen, NULL))
+	{
+		return FALSE;
+	}
+	//判断PE标志
+	if (dwNTSignature != IMAGE_NT_SIGNATURE)
+	{
+		//MessageBox("不是PE文件");
+		CloseHandle(hFile);
+		return FALSE;
+	}
+	// 判断Machine x86
+	SetFilePointer(hFile, DosHeader.e_lfanew+4, NULL, FILE_BEGIN);
+	if (!ReadFile(hFile, &dwMachine, sizeof(dwMachine), &dwReadLen, NULL)) return FALSE;
+	if (dwMachine != 0x14C)
+	{
 		CloseHandle(hFile);
 		return FALSE;
 	}
@@ -412,7 +475,8 @@ ULONG64 RVAtoFOA(ULONG64 rva,LPBYTE p)
 	for(i=0;i<section_num;i++)
 	{
 		// vc++6.0 ULONG64类型变量作比较存在问题
-		if((DWORD)roa>=(DWORD)GetSectionHeadersPtr(p,i)->VirtualAddress && (DWORD)roa<(DWORD)(GetSectionHeadersPtr(p,i)->VirtualAddress+GetSectionHeadersPtr(p,i)->Misc.VirtualSize))
+		if((DWORD)roa>=(DWORD)GetSectionHeadersPtr(p,i)->VirtualAddress && 
+			(DWORD)roa<(DWORD)(GetSectionHeadersPtr(p,i)->VirtualAddress+GetSectionHeadersPtr(p,i)->Misc.VirtualSize))
 		{
 			virtual_address=GetSectionHeadersPtr(p,i)->VirtualAddress;
 			file_address=GetSectionHeadersPtr(p,i)->PointerToRawData;
@@ -511,16 +575,19 @@ DATA_DIRECTORY* GetDirectoryEntryPtr(LPBYTE file_buffer, int index)
 }
 
 
-DWORD AddNewSection(LPBYTE* fbuffer, DWORD file_size, SECTION_HEADER* new_section_head, LPBYTE new_section_buffer, DWORD new_section_size)
+BOOL AddNewSection(LPBYTE* fbuffer, 
+					DWORD file_size, 
+					SECTION_HEADER* new_section_head, 
+					LPBYTE new_section_buffer,
+					DWORD new_section_size)
 {
 	if (!fbuffer[0])
 	{
 		DbgPrintf(TEXT("Get a nullptr.\n"));
-		return 1;
+		return FALSE;
 	}
 
 	LPBYTE new_fbuffer = nullptr;
-	DWORD log_code = 0;
 	DOS_HEADER* p_dos = GetDosHeadersPtr(fbuffer[0]);
 	DWORD dos_e_lfanew = p_dos->e_lfanew;
 	SECTION_HEADER* p_section = nullptr;
@@ -546,61 +613,8 @@ DWORD AddNewSection(LPBYTE* fbuffer, DWORD file_size, SECTION_HEADER* new_sectio
 	p_section = GetSectionHeadersPtr(fbuffer[0], section_num - 1) + 1;
 
 	// pe头+节表后的空间 是否充足
-	if (headers_size - ((DWORD)p_section - (DWORD)fbuffer[0]) > 80)
-	{
-		log_code++;
-		for (i = 0; i < 80; i++)
-		{
-			if (((char*)p_section)[i] != 0) {
-				break;
-			}
-		}
-		if (i == 80)
-		{
-			log_code++;
-			p_section -= 1;
-
-			if(!new_section_head->Name[0]) strcpy_s((char*)new_section_head->Name, 3, ".A");
-			new_section_head->Misc.VirtualSize = new_section_size;
-			new_section_head->VirtualAddress = img_size;
-			new_section_head->SizeOfRawData = AutoAlign(new_section_size, file_align);
-			// 最后一个节的 PointerToRawData + SizeOfRawData 可能小于pe文件大小 
-			new_section_head->PointerToRawData = (file_size>(p_section->PointerToRawData + p_section->SizeOfRawData))?\
-													file_size: (p_section->PointerToRawData + p_section->SizeOfRawData);
-			new_section_head->Characteristics = 0xE0000020;
-
-			p_section += 1;
-			memcpy_s((char*)p_section, sizeof(SECTION_HEADER), (char*)new_section_head, sizeof(SECTION_HEADER));
-
-			GetFileHeadersPtr(fbuffer[0])->NumberOfSections += 1;
-			if (GetFileHeadersPtr(fbuffer[0])->Machine == 0x14c)
-			{
-				GetOptionalHeadersPtr(fbuffer[0])->SizeOfImage = img_size + AutoAlign(new_section_size, section_align);
-			}
-			else {
-				GetOptionalHeaders64Ptr(fbuffer[0])->SizeOfImage = img_size + AutoAlign(new_section_size, section_align);
-			}
-
-			new_fbuffer = (LPBYTE)HeapAlloc(GetProcessHeap(), 0, file_size + new_section_size);
-			if (new_fbuffer)
-			{
-				log_code++;
-				memcpy_s(new_fbuffer, file_size + new_section_size, fbuffer[0], file_size);
-				memcpy_s(&new_fbuffer[file_size], new_section_size, new_section_buffer, new_section_size);
-				HeapFree(GetProcessHeap(),0, fbuffer[0]);
-				fbuffer[0] = new_fbuffer;
-			}
-		}
-	}
-
-	switch (log_code)
-	{
-	case 0:
-		DbgPrintf(TEXT("PE headers not 80 Byte.\n"));
-		return 1;
-	case 1:
-		DbgPrintf(TEXT("Not all 0 in 80 Byte.\n"));
-		// 判断 pe头的dos_stub(垃圾数据) 是否充足，是后面的数据整体向前移动 腾出空间新增节
+	if (headers_size - ((DWORD)p_section - (DWORD)fbuffer[0]) < 80) {
+		// 检查dos 后面垃圾数据
 		if (dos_e_lfanew - 64 > 80)
 		{
 			for (i = 0; i < ((LPBYTE)p_section - fbuffer[0]) - dos_e_lfanew; i++)
@@ -610,24 +624,193 @@ DWORD AddNewSection(LPBYTE* fbuffer, DWORD file_size, SECTION_HEADER* new_sectio
 			}
 
 			p_dos->e_lfanew = 64;
-			DbgPrintf(TEXT("\nRecursive call Add_NewSection().\n"));
 			AddNewSection(fbuffer, file_size, new_section_head, new_section_buffer, new_section_size);
-			DbgPrintf(TEXT("\n"));
-			DbgPrintf(TEXT("Dos_stub is greater than 80 Byte.\n"));
-			
-			return 1;
+
+			return TRUE;
 		}
-		DbgPrintf(TEXT("\tFail add section header\n"));
-		break;
-	case 2:
-		DbgPrintf(TEXT("new_fbuffer Don't get enough memory.\n"));
-		break;
-	default:
-		DbgPrintf(TEXT("Written new section into FileBuffer.\n"));
-		return 1;
+		return FALSE;
 	}
-	return 0;
+	
+	// 80 空数据 00
+	for (i = 0; i < 80; i++)
+	{
+		if (((char*)p_section)[i] != 0) {
+			break;
+		}
+	}
+	if (i != 80)
+	{
+		// 检查dos 后面垃圾数据
+		if (dos_e_lfanew - 64 > 80)
+		{
+			for (i = 0; i < ((LPBYTE)p_section - fbuffer[0]) - dos_e_lfanew; i++)
+			{
+				fbuffer[0][i + 64] = fbuffer[0][i + dos_e_lfanew];
+				fbuffer[0][i + dos_e_lfanew] = 0;
+			}
+
+			p_dos->e_lfanew = 64;
+			AddNewSection(fbuffer, file_size, new_section_head, new_section_buffer, new_section_size);
+
+			return TRUE;
+		}
+		return FALSE;
+	}
+
+	p_section -= 1;	
+
+	if(!new_section_head->Name[0]) strcpy_s((char*)new_section_head->Name, 5, ".AAA");
+	new_section_head->Misc.VirtualSize = AutoAlign(new_section_size, file_align);
+	new_section_head->VirtualAddress = img_size;
+	new_section_head->SizeOfRawData = AutoAlign(new_section_size, file_align);
+	// 最后一个节大小+其foa可能 < file_size，节与节之间可以不连续
+	new_section_head->PointerToRawData = file_size;
+	new_section_head->Characteristics = 0xE0000020;
+
+	p_section += 1;
+	memcpy_s((char*)p_section, sizeof(SECTION_HEADER), (char*)new_section_head, sizeof(SECTION_HEADER));
+
+	GetFileHeadersPtr(fbuffer[0])->NumberOfSections += 1;
+	if (GetFileHeadersPtr(fbuffer[0])->Machine == 0x14c)
+	{
+		GetOptionalHeadersPtr(fbuffer[0])->SizeOfImage = img_size + AutoAlign(new_section_size, section_align);
+	}
+	else {
+		GetOptionalHeaders64Ptr(fbuffer[0])->SizeOfImage = img_size + AutoAlign(new_section_size, section_align);
+	}
+
+	new_fbuffer = (LPBYTE)HeapAlloc(GetProcessHeap(), 0,file_size + new_section_head->SizeOfRawData);
+	if (!new_fbuffer) return FALSE;
+	memcpy_s(new_fbuffer, file_size + new_section_size, fbuffer[0], file_size);
+	memcpy_s(&new_fbuffer[file_size], new_section_size, new_section_buffer, new_section_size);
+	HeapFree(GetProcessHeap(),0, fbuffer[0]);
+	fbuffer[0] = new_fbuffer;
+	
+	return TRUE;
 }
+
+
+//DWORD AddNewSection(LPBYTE* fbuffer, 
+//					DWORD file_size, 
+//					SECTION_HEADER* new_section_head, 
+//					LPBYTE new_section_buffer,
+//					DWORD new_section_size)
+//{
+//	if (!fbuffer[0])
+//	{
+//		DbgPrintf(TEXT("Get a nullptr.\n"));
+//		return 1;
+//	}
+//
+//	LPBYTE new_fbuffer = nullptr;
+//	DWORD log_code = 0;
+//	DOS_HEADER* p_dos = GetDosHeadersPtr(fbuffer[0]);
+//	DWORD dos_e_lfanew = p_dos->e_lfanew;
+//	SECTION_HEADER* p_section = nullptr;
+//	DWORD section_num = GetFileHeadersPtr(fbuffer[0])->NumberOfSections;
+//	DWORD img_size = 0;
+//	DWORD headers_size = 0;
+//	DWORD i = 0;
+//	DWORD file_align = 0;
+//	DWORD section_align = 0;
+//	if (GetFileHeadersPtr(fbuffer[0])->Machine == 0x14c)
+//	{
+//		img_size = GetOptionalHeadersPtr(fbuffer[0])->SizeOfImage;
+//		headers_size = GetOptionalHeadersPtr(fbuffer[0])->SizeOfHeaders;
+//		file_align = GetOptionalHeadersPtr(fbuffer[0])->FileAlignment;
+//		section_align = GetOptionalHeadersPtr(fbuffer[0])->SectionAlignment;
+//	}
+//	else {
+//		img_size = GetOptionalHeaders64Ptr(fbuffer[0])->SizeOfImage;
+//		headers_size = GetOptionalHeaders64Ptr(fbuffer[0])->SizeOfHeaders;
+//		file_align = GetOptionalHeaders64Ptr(fbuffer[0])->FileAlignment;
+//		section_align = GetOptionalHeaders64Ptr(fbuffer[0])->SectionAlignment;
+//	}
+//	p_section = GetSectionHeadersPtr(fbuffer[0], section_num - 1) + 1;
+//
+//	// pe头+节表后的空间 是否充足
+//	if (headers_size - ((DWORD)p_section - (DWORD)fbuffer[0]) > 80)
+//	{
+//		log_code++;
+//		for (i = 0; i < 80; i++)
+//		{
+//			if (((char*)p_section)[i] != 0) {
+//				break;
+//			}
+//		}
+//		if (i == 80)
+//		{
+//			log_code++;
+//			p_section -= 1;
+//
+//			if(!new_section_head->Name[0]) strcpy_s((char*)new_section_head->Name, 3, ".AAA");
+//			new_section_head->Misc.VirtualSize = AutoAlign(new_section_size, file_align);
+//			new_section_head->VirtualAddress = img_size;
+//			new_section_head->SizeOfRawData = AutoAlign(new_section_size, file_align);
+//			// 最后一个节大小+其foa可能 < file_size，节与节之间可以不连续
+//			new_section_head->PointerToRawData = file_size;
+//			new_section_head->Characteristics = 0xE0000020;
+//
+//			p_section += 1;
+//			memcpy_s((char*)p_section, sizeof(SECTION_HEADER), (char*)new_section_head, sizeof(SECTION_HEADER));
+//
+//			GetFileHeadersPtr(fbuffer[0])->NumberOfSections += 1;
+//			if (GetFileHeadersPtr(fbuffer[0])->Machine == 0x14c)
+//			{
+//				GetOptionalHeadersPtr(fbuffer[0])->SizeOfImage = img_size + AutoAlign(new_section_size, section_align);
+//			}
+//			else {
+//				GetOptionalHeaders64Ptr(fbuffer[0])->SizeOfImage = img_size + AutoAlign(new_section_size, section_align);
+//			}
+//
+//			new_fbuffer = (LPBYTE)HeapAlloc(GetProcessHeap(), 0,file_size + new_section_head->SizeOfRawData);
+//			if (new_fbuffer)
+//			{
+//				log_code++;
+//				memcpy_s(new_fbuffer, file_size + new_section_size, fbuffer[0], file_size);
+//				memcpy_s(&new_fbuffer[file_size], new_section_size, new_section_buffer, new_section_size);
+//				HeapFree(GetProcessHeap(),0, fbuffer[0]);
+//				fbuffer[0] = new_fbuffer;
+//			}
+//		}
+//	}
+//
+//	switch (log_code)
+//	{
+//	case 0:
+//		DbgPrintf(TEXT("PE headers not 80 Byte.\n"));
+//		return 1;
+//	case 1:
+//		DbgPrintf(TEXT("Not all 0 in 80 Byte.\n"));
+//		// 判断 pe头的dos_stub(垃圾数据) 是否充足，是后面的数据整体向前移动 腾出空间新增节
+//		if (dos_e_lfanew - 64 > 80)
+//		{
+//			for (i = 0; i < ((LPBYTE)p_section - fbuffer[0]) - dos_e_lfanew; i++)
+//			{
+//				fbuffer[0][i + 64] = fbuffer[0][i + dos_e_lfanew];
+//				fbuffer[0][i + dos_e_lfanew] = 0;
+//			}
+//
+//			p_dos->e_lfanew = 64;
+//			DbgPrintf(TEXT("\nRecursive call Add_NewSection().\n"));
+//			AddNewSection(fbuffer, file_size, new_section_head, new_section_buffer, new_section_size);
+//			DbgPrintf(TEXT("\n"));
+//			DbgPrintf(TEXT("Dos_stub is greater than 80 Byte.\n"));
+//			
+//			return 1;
+//		}
+//		DbgPrintf(TEXT("\tFail add section header\n"));
+//		break;
+//	case 2:
+//		DbgPrintf(TEXT("new_fbuffer Don't get enough memory.\n"));
+//		break;
+//	default:
+//		DbgPrintf(TEXT("Written new section into FileBuffer.\n"));
+//		return 1;
+//	}
+//	return 0;
+//}
+
 
 
 

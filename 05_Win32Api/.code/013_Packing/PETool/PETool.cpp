@@ -65,11 +65,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
             lpDecryptedData);
 
         // 是否解密成功？
-        if (!(GetFileHeadersPtr(lpDecryptedData)->Machine == 0x14C ||
-            GetFileHeadersPtr(lpDecryptedData)->Machine == 0x8664)) return 0;
-        dwSrcEntryPoint = GetFileHeadersPtr(lpDecryptedData)->Machine == 0x14c ?
-                        GetOptionalHeadersPtr(lpDecryptedData)->AddressOfEntryPoint :
-                        GetOptionalHeaders64Ptr(lpDecryptedData)->AddressOfEntryPoint;
+        if (!(GetFileHeadersPtr(lpDecryptedData)->Machine == 0x14C)) return 0;
+        dwSrcEntryPoint = GetOptionalHeadersPtr(lpDecryptedData)->AddressOfEntryPoint;
 
         // 获取外壳程序的Context
         threadContext.ContextFlags = CONTEXT_ALL;
@@ -88,12 +85,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         }
 
         // 在挂起的进程中 指定位置 申请内存
-        dwSrcImgBase = GetFileHeadersPtr(lpDecryptedData)->Machine == 0x14c ?
-                       GetOptionalHeadersPtr(lpDecryptedData)->ImageBase :
-                       (DWORD)GetOptionalHeaders64Ptr(lpDecryptedData)->ImageBase;
-        dwSrcImgSize = GetFileHeadersPtr(lpDecryptedData)->Machine == 0x14c ?
-                       GetOptionalHeadersPtr(lpDecryptedData)->SizeOfImage :
-                       GetOptionalHeaders64Ptr(lpDecryptedData)->SizeOfImage;
+        dwSrcImgBase = GetOptionalHeadersPtr(lpDecryptedData)->ImageBase ;
+        dwSrcImgSize = GetOptionalHeadersPtr(lpDecryptedData)->SizeOfImage;
         // 可能申请失败
         lpSrcImgBase = VirtualAllocEx(pI.hProcess,
                                     (LPVOID)dwSrcImgBase,
