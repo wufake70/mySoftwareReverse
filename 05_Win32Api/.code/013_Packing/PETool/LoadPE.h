@@ -583,7 +583,6 @@ BOOL AddNewSection(LPBYTE* fbuffer,
 {
 	if (!fbuffer[0])
 	{
-		DbgPrintf(TEXT("Get a nullptr.\n"));
 		return FALSE;
 	}
 
@@ -659,7 +658,7 @@ BOOL AddNewSection(LPBYTE* fbuffer,
 
 	p_section -= 1;	
 
-	if(!new_section_head->Name[0]) strcpy_s((char*)new_section_head->Name, 5, ".AAA");
+	if(!new_section_head->Name[0]) strcpy_s((char*)new_section_head->Name, 8, ".AAA");
 	new_section_head->Misc.VirtualSize = AutoAlign(new_section_size, file_align);
 	new_section_head->VirtualAddress = img_size;
 	new_section_head->SizeOfRawData = AutoAlign(new_section_size, file_align);

@@ -20,6 +20,8 @@ INT_PTR CALLBACK DialogPackingProc(
     LPBYTE lpSrcFileBuffer = nullptr;
     LPBYTE lpEncryptedData = nullptr;
     LPBYTE lpOutData = nullptr;
+    DWORD dwNumOfBytesRead = 0;
+    DWORD dwNumOfBytesWrite = 0;
 
     SECTION_HEADER* newSectionHeader = nullptr;
 
@@ -127,8 +129,8 @@ INT_PTR CALLBACK DialogPackingProc(
             memset(lpEncryptedData, 0, GetFileSize(hSrcFile, nullptr));
             memset(newSectionHeader, 0, 40);
 
-            if (ReadFile(hShellFile, lpShellFileBuffer, GetFileSize(hShellFile, nullptr), 0, nullptr) && \
-                ReadFile(hSrcFile, lpSrcFileBuffer, GetFileSize(hSrcFile, nullptr), 0, nullptr))
+            if (ReadFile(hShellFile, lpShellFileBuffer, GetFileSize(hShellFile, nullptr), &dwNumOfBytesRead, nullptr) && \
+                ReadFile(hSrcFile, lpSrcFileBuffer, GetFileSize(hSrcFile, nullptr), &dwNumOfBytesRead, nullptr))
             {
                 EncryptData(lpSrcFileBuffer, GetFileSize(hSrcFile, nullptr),lpEncryptedData);
                 // 在shell新增节，加密后src
@@ -140,17 +142,19 @@ INT_PTR CALLBACK DialogPackingProc(
                                 GetFileSize(hSrcFile,nullptr));
 
                 /*  需要shellcode
-                    在shell再次新增节，
+                    在shell再次新增节,
                     双击加壳后程序，
                     解密src，创建挂起的进程
                 */
 
                 // 写入新文件
                 // 新增节，需要保证,新文件大小 >= 新增节大小+其foa
+                // WriteFile、ReadFile 中 bufferSize 不能越界
+                //      win7中 lpNumberOfBytes... 参数不能为NULL
                 if (WriteFile(hOutFile,
                     lpShellFileBuffer,
                     newSectionHeader[0].SizeOfRawData + GetFileSize(hShellFile, nullptr),
-                    0,
+                    &dwNumOfBytesWrite,
                     nullptr))
                 {
                     DbgPrintf(TEXT("DEBUG: Writen it completely!"));
