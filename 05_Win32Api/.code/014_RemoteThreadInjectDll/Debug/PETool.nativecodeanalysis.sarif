@@ -1,0 +1,147 @@
+{
+  "version": "2.1.0",
+  "$schema": "https://schemastore.azurewebsites.net/schemas/json/sarif-2.1.0-rtm.5.json",
+  "runs": [
+    {
+      "results": [],
+      "tool": {
+        "driver": {
+          "name": "PREfast",
+          "fullName": "PREfast Code Analysis",
+          "version": "14.37.32822.0",
+          "informationUri": "https://aka.ms/cpp/ca"
+        }
+      },
+      "invocations": [
+        {
+          "executionSuccessful": true
+        }
+      ],
+      "artifacts": [
+        {
+          "location": {
+            "uri": "file:///d:/.important/mysoftwarereverse/05_win32api/.code/014_remotethreadinjectdll/petool.cpp"
+          },
+          "roles": [
+            "analysisTarget"
+          ],
+          "hashes": {
+            "sha-256": "88781e4fac3b5b9c915ca6ea515a0b8e41fdae8a85d3e1a6f3e4e83b65a4c483"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///d:/.important/mysoftwarereverse/05_win32api/.code/014_remotethreadinjectdll/framework.h"
+          },
+          "hashes": {
+            "sha-256": "2e6b5687053713659df2193794d79fc830fa4e5e5b85283d251dbb4eca937c65"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///d:/.important/mysoftwarereverse/05_win32api/.code/014_remotethreadinjectdll/targetver.h"
+          },
+          "hashes": {
+            "sha-256": "22d5a70d062707e58c110067d71ae2476fc14dff3630079dfec0e771ac577a81"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///d:/.important/mysoftwarereverse/05_win32api/.code/014_remotethreadinjectdll/petool.h"
+          },
+          "hashes": {
+            "sha-256": "9e483c872cd8895db007b9bec06cc66a7e56f839b61e93ec2c24d15ca2eaf1fa"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///d:/.important/mysoftwarereverse/05_win32api/.code/014_remotethreadinjectdll/resource1.h"
+          },
+          "hashes": {
+            "sha-256": "a9c0035695edb0df6c4395083695d2a3879ebb3ecc1402df2653756f29aca20f"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///d:/.important/mysoftwarereverse/05_win32api/.code/014_remotethreadinjectdll/tool.h"
+          },
+          "hashes": {
+            "sha-256": "0b403243727a1e8028eb30087f69c53607b92f2715fdd49b611f94f55e016449"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///d:/.important/mysoftwarereverse/05_win32api/.code/014_remotethreadinjectdll/tool.cpp"
+          },
+          "hashes": {
+            "sha-256": "739eb68edc9f3499deee8d71ae90133335521bea72d9b1f0752297288667c157"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///d:/.important/mysoftwarereverse/05_win32api/.code/014_remotethreadinjectdll/getprocessinfo.h"
+          },
+          "hashes": {
+            "sha-256": "5833dd9a12ea0e6805c02bbcdd8da5a251944978ee83009e9e8579aa231bc443"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///d:/.important/mysoftwarereverse/05_win32api/.code/014_remotethreadinjectdll/getprocessinfo.cpp"
+          },
+          "hashes": {
+            "sha-256": "194339723a2d222520cb71ef0f8a9a602fb3576ec0ba10922de6ddb7901f6f51"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///d:/.important/mysoftwarereverse/05_win32api/.code/014_remotethreadinjectdll/loadpe.h"
+          },
+          "hashes": {
+            "sha-256": "ebc621a9192d19e9e2a5acd91f1d8a824bb7def9f779bc335ebd3c5672ad6e26"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///d:/.important/mysoftwarereverse/05_win32api/.code/014_remotethreadinjectdll/stdafx.h"
+          },
+          "hashes": {
+            "sha-256": "c61e17b74135fda46f11a614a6639fd3e04f215d9d78254e0eb29c9753ebb1de"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///d:/.important/mysoftwarereverse/05_win32api/.code/014_remotethreadinjectdll/dlgpesectionproc.h"
+          },
+          "hashes": {
+            "sha-256": "866ca4ac7528c8d6bdb28b0e362d7a7e311c904f89777e885c76a77c8da6531d"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///d:/.important/mysoftwarereverse/05_win32api/.code/014_remotethreadinjectdll/dlgpedirectoryproc.h"
+          },
+          "hashes": {
+            "sha-256": "790b7a1b98d0afcb64ef15cc6fb7eb92de5153e92da9f5cdd30b578af1208afe"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///d:/.important/mysoftwarereverse/05_win32api/.code/014_remotethreadinjectdll/dlgpeproc.h"
+          },
+          "hashes": {
+            "sha-256": "fee4a96cb81bb04a65f81f9558612991182ca192012a9ab00587109e38c6d55d"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///d:/.important/mysoftwarereverse/05_win32api/.code/014_remotethreadinjectdll/dlgpackingproc.cpp"
+          },
+          "hashes": {
+            "sha-256": "e2a30e08c566bc2c99d28cabf72feea487830fa5c5631eff45ac7fda489fddff"
+          }
+        }
+      ]
+    }
+  ]
+}

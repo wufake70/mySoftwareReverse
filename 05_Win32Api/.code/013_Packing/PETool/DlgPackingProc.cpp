@@ -36,17 +36,18 @@ INT_PTR CALLBACK DialogPackingProc(
             return TRUE;
 
         case IDC_BUTTON_SHELL_PATH:
-            wsprintf(szPESuffix, TEXT("%s"), TEXT("exe files\0 *.exe;"));
-            memset(szFilePath, 0, 256);
-            memset(&stOpenFile, 0, sizeof stOpenFile);
-            stOpenFile.lStructSize = sizeof OPENFILENAME;
-            stOpenFile.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST;
-            stOpenFile.hwndOwner = handDlg;
-            stOpenFile.lpstrFilter = szPESuffix;
-            stOpenFile.lpstrFile = szFilePath;
-            stOpenFile.nMaxFile = MAX_PATH;
-            GetModuleFileName(hAppInstance, szFilePath, MAX_PATH);
-            if (GetOpenFileName(&stOpenFile) && IsPE32(szFilePath)) // GetOpenFileName(&stOpenFile) &&
+            //wsprintf(szPESuffix, TEXT("%s"), TEXT("exe files\0 *.exe;"));
+            memset(szFilePath, 0, MAX_PATH);
+            //memset(&stOpenFile, 0, sizeof stOpenFile);
+            //stOpenFile.lStructSize = sizeof OPENFILENAME;
+            //stOpenFile.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST;
+            //stOpenFile.hwndOwner = handDlg;
+            //stOpenFile.lpstrFilter = szPESuffix;
+            //stOpenFile.lpstrFile = szFilePath;
+            //stOpenFile.nMaxFile = MAX_PATH;
+            //GetModuleFileName(hAppInstance, szFilePath, MAX_PATH);
+            GetModuleFileName(hAppInstance,szFilePath,MAX_PATH);
+            if (IsPE32(szFilePath)) // GetOpenFileName(&stOpenFile) &&
             {
                 SetWindowText(GetDlgItem(handDlg, IDC_STATIC_SHELL_PATH), szFilePath);
             }
@@ -132,6 +133,9 @@ INT_PTR CALLBACK DialogPackingProc(
             if (ReadFile(hShellFile, lpShellFileBuffer, GetFileSize(hShellFile, nullptr), &dwNumOfBytesRead, nullptr) && \
                 ReadFile(hSrcFile, lpSrcFileBuffer, GetFileSize(hSrcFile, nullptr), &dwNumOfBytesRead, nullptr))
             {
+                // ***取消 勾选 壳源的可选PE头 dll characteristic 中 DLL 可以在加载时重定位***
+                GetOptionalHeadersPtr(lpShellFileBuffer)[0].DllCharacteristics &= 0xAF80;
+
                 EncryptData(lpSrcFileBuffer, GetFileSize(hSrcFile, nullptr),lpEncryptedData);
                 // 在shell新增节，加密后src
                 sprintf_s((LPCH)newSectionHeader->Name,8,"%s", ".AAA");
@@ -168,6 +172,7 @@ INT_PTR CALLBACK DialogPackingProc(
             HeapFree(GetProcessHeap(), 0, lpShellFileBuffer);
             HeapFree(GetProcessHeap(), 0, lpSrcFileBuffer);
             HeapFree(GetProcessHeap(), 0, lpEncryptedData);
+            HeapFree(GetProcessHeap(), 0, newSectionHeader);
             return TRUE;
         }
 

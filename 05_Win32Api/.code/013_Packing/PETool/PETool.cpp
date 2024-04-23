@@ -13,10 +13,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_ int       nCmdShow)
 {
     /* ***傀儡进程*** */
-    /*
-        将msvs 编译的程序作为壳源，在执行傀儡进程时报错 0xc0000005 访问错误，
-        比较老的32位程序 作为壳源时，可以实现，此时就需要shellcode 来实现解解壳。
-    */
     // 判断自身是否为 加壳程序
     if (IsPackingEXE(hInstance))
     {
@@ -96,7 +92,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         // 申请失败，判断 重定位表
         if (!((DWORD)lpSrcImgBase == dwSrcImgBase))
         {
-            MessageBox(0,TEXT("VirtualAlloc Fail."),0,0);
+            MessageBox(0,TEXT("VirtualAlloc Fail.Need to relocate."),0,0);
             CloseHandle(pI.hProcess);
             CloseHandle(pI.hThread);
             return 0;
@@ -124,17 +120,19 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         WriteProcessMemory(pI.hProcess, (LPVOID)(threadContext.Ebx+8), &lpSrcImgBase, 4, &dwWritenByteNum);
         SetThreadContext(pI.hThread, &threadContext);
 
-        TCHAR a[0x20] = { 0 };
-        DWORD b = 0;
-        CHAR c[0x20] = { 0 };
-        ReadProcessMemory(pI.hProcess, (LPVOID)(threadContext.Ebx + 8), &b, 4, 0);
-        wsprintf(a,TEXT("eax:%x\nebx:%x\0"), threadContext.Eax,b);
-        MessageBox(0,a,0,0);
+        //TCHAR a[0x20] = { 0 };
+        //DWORD b = 0;
+        //CHAR c[0x20] = { 0 };
+        //ReadProcessMemory(pI.hProcess, (LPVOID)(threadContext.Ebx + 8), &b, 4, 0);
+        //wsprintf(a,TEXT("eax:%x\nebx:%x\0"), threadContext.Eax,b);
+        //MessageBox(0,a,0,0);
 
         //MessageBox(0, currentExePath, 0, 0);
         ResumeThread(pI.hThread);
         CloseHandle(pI.hProcess);
         CloseHandle(pI.hThread);
+        HeapFree(GetProcessHeap(),0, lpDecryptedData);
+        HeapFree(GetProcessHeap(),0, lpImgBuffer);
 
         return 0;
     }
