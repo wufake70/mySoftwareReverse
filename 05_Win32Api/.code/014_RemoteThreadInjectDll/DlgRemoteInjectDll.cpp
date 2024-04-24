@@ -1,7 +1,6 @@
 
 
 
-
 INT_PTR CALLBACK DialogRemoteInJectProc(
     HWND handDlg,  // handle to dialog box		
     UINT uMsg,     // message		
@@ -83,8 +82,8 @@ INT_PTR CALLBACK DialogRemoteInJectProc(
             if (dwWriteBytesNum != (lstrlen(szDllPath) + 1) * sizeof(TCHAR))
             {
                 MessageBox(0,TEXT("Dll Path write inot process Fail."),0,0);
+                VirtualFreeEx(hProcess, lpDllData, 0, MEM_RELEASE);
                 CloseHandle(hProcess);
-                VirtualFreeEx(hProcess, NULL, (lstrlen(szDllPath) + 1) * sizeof(TCHAR), MEM_RELEASE);
                 return TRUE;
             }
 
@@ -100,8 +99,8 @@ INT_PTR CALLBACK DialogRemoteInJectProc(
             if (!hRemoteThread)
             {
                 MessageBox(0, TEXT("hThread Fail."), 0, 0);
+                VirtualFreeEx(hProcess, lpDllData, 0, MEM_RELEASE);
                 CloseHandle(hProcess);
-                VirtualFreeEx(hProcess, NULL, (lstrlen(szDllPath) + 1) * sizeof(TCHAR), MEM_RELEASE);
                 return TRUE;
             }
             // 等待线程执行完成
@@ -111,10 +110,12 @@ INT_PTR CALLBACK DialogRemoteInJectProc(
             wsprintf(szExitCode, TEXT("0x%x"), dwExitCode);
             SetWindowText(GetDlgItem(handDlg,IDC_STATIC_DLL_IMGBASE), szExitCode);
 
+            VirtualFreeEx(hProcess, lpDllData, 0, MEM_RELEASE);
             CloseHandle(hProcess);
             CloseHandle(hRemoteThread);
-            VirtualFreeEx(hProcess,NULL, (lstrlen(szDllPath) + 1) * sizeof(TCHAR), MEM_RELEASE);
             return TRUE;
+
+
         }
 
 

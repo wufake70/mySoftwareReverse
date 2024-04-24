@@ -94,8 +94,9 @@
 #define IDC_BUTTON_GET_DLL              1083
 #define IDC_STATIC_DLL_PATH             1084
 #define IDC_BUTTON_INJECT               1085
-#define IDC_STATIC_DLL_PATH2            1086
 #define IDC_STATIC_DLL_IMGBASE          1086
+#define IDC_BUTTON_INJECT2              1087
+#define IDC_BUTTON_EXECUTE              1087
 #define ID_J_J                          40001
 #define ID_J_J40002                     40002
 #define ID_REFRESH                      40003

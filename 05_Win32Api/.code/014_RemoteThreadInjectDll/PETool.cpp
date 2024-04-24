@@ -42,7 +42,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         // 创建被挂起的进程
         if (!CreateProcess(
             currentExePath,
-            //TEXT("C:\\Users\\yui\\Desktop\\crack.exe"),  // 可以实现傀儡进程
             NULL,
             NULL,
             NULL,

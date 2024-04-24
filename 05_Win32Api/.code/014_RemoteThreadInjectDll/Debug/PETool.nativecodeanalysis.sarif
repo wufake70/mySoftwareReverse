@@ -26,7 +26,7 @@
             "analysisTarget"
           ],
           "hashes": {
-            "sha-256": "88781e4fac3b5b9c915ca6ea515a0b8e41fdae8a85d3e1a6f3e4e83b65a4c483"
+            "sha-256": "4cf92f9751cba6eb3ae95daa2a0fb70ec1858ed57984a84cb9d2ba7a70185004"
           }
         },
         {
@@ -50,7 +50,7 @@
             "uri": "file:///d:/.important/mysoftwarereverse/05_win32api/.code/014_remotethreadinjectdll/petool.h"
           },
           "hashes": {
-            "sha-256": "9e483c872cd8895db007b9bec06cc66a7e56f839b61e93ec2c24d15ca2eaf1fa"
+            "sha-256": "f15fecd5dbc7006c2691eb7a5f79400a2a9b8beaff8db91642786c45fc434f8e"
           }
         },
         {
@@ -58,7 +58,7 @@
             "uri": "file:///d:/.important/mysoftwarereverse/05_win32api/.code/014_remotethreadinjectdll/resource1.h"
           },
           "hashes": {
-            "sha-256": "a9c0035695edb0df6c4395083695d2a3879ebb3ecc1402df2653756f29aca20f"
+            "sha-256": "af1c5a46bc69b123d2ee51af3fc5730a262c24fd3b76f577264967b843c21073"
           }
         },
         {
@@ -74,7 +74,7 @@
             "uri": "file:///d:/.important/mysoftwarereverse/05_win32api/.code/014_remotethreadinjectdll/tool.cpp"
           },
           "hashes": {
-            "sha-256": "739eb68edc9f3499deee8d71ae90133335521bea72d9b1f0752297288667c157"
+            "sha-256": "8fbc265cc8d4750111536742748fa0e81fed753667c5a96eba29574aff50bc68"
           }
         },
         {
@@ -138,7 +138,15 @@
             "uri": "file:///d:/.important/mysoftwarereverse/05_win32api/.code/014_remotethreadinjectdll/dlgpackingproc.cpp"
           },
           "hashes": {
-            "sha-256": "e2a30e08c566bc2c99d28cabf72feea487830fa5c5631eff45ac7fda489fddff"
+            "sha-256": "dc0c416755fd204d150d126c0dbaa7c5b1a703eb248f28ccfd659e10364b24b2"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///d:/.important/mysoftwarereverse/05_win32api/.code/014_remotethreadinjectdll/dlgremoteinjectdll.cpp"
+          },
+          "hashes": {
+            "sha-256": "436e75dc4fe20df98dfc7cbd7d3e3e7f16cc03f9503b2bb60b6f88eb9bd4beab"
           }
         }
       ]
