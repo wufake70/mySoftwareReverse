@@ -146,23 +146,23 @@ INT_PTR CALLBACK DialogRemoteInJectProc(
                                                 0,
                                                 (LPTHREAD_START_ROUTINE)(dwInJectExeImgBase + dwInJectExeOep),
                                                 NULL,
-                                                CREATE_SUSPENDED,
+                                                0,
                                                 NULL);
-                GetThreadContext(hInJectExeThread,&tcontext);
-                tcontext.Ebx = (DWORD)VirtualAllocEx(hTargetProcess,
-                                NULL,
-                                4,
-                                MEM_COMMIT,
-                                PAGE_EXECUTE_READWRITE);
-                WriteProcessMemory(hTargetProcess,
-                    (LPBYTE)tcontext.Ebx,
-                    (LPBYTE)dwInJectExeImgBase,
-                    4,&dwWriteBytesNum);
-                tcontext.Ebx -= 8;
-                SetThreadContext(hTargetProcess,&tcontext);
+                //GetThreadContext(hInJectExeThread,&tcontext);
+                //tcontext.Ebx = (DWORD)VirtualAllocEx(hTargetProcess,
+                //                NULL,
+                //                4,
+                //                MEM_COMMIT,
+                //                PAGE_EXECUTE_READWRITE);
+                //BOOL b = WriteProcessMemory(hTargetProcess,
+                //    (LPBYTE)tcontext.Ebx,
+                //    (LPBYTE)&dwInJectExeImgBase,
+                //    4,&dwWriteBytesNum);
+                //tcontext.Ebx -= 8;
+                //SetThreadContext(hTargetProcess,&tcontext);
 
-                MessageBox(0, 0, 0, 0);
-                ResumeThread(hInJectExeThread);
+                //MessageBox(0, 0, 0, 0);
+                //ResumeThread(hInJectExeThread);
                 //CloseHandle(hInJectExeThread);
             //}
             return TRUE;
