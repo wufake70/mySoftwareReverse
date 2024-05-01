@@ -611,8 +611,13 @@ BOOL AddNewSection(LPBYTE* fbuffer,
 	}
 	p_section = GetSectionHeadersPtr(fbuffer[0], section_num - 1) + 1;
 
+#ifdef _WIN64
+	// pe头+节表后的空间 是否充足
+	if (headers_size - ((ULONG64)p_section - (ULONG64)fbuffer[0]) < 80) {
+#else
 	// pe头+节表后的空间 是否充足
 	if (headers_size - ((DWORD)p_section - (DWORD)fbuffer[0]) < 80) {
+#endif
 		// 检查dos 后面垃圾数据
 		if (dos_e_lfanew - 64 > 80)
 		{

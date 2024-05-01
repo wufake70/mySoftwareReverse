@@ -351,10 +351,10 @@ DWORD FileBufferToImageBuffer(IN LPBYTE lpFilebuffer,OUT LPBYTE& lpImageBuffer)
 	switch(log_)
 	{
 		case 2:
-			DbgPrintf(TEXT("get a nullptr.\n"));
+			// DbgPrintf(TEXT("get a nullptr.\n"));
 			break;
 		case 1:
-			DbgPrintf(TEXT("memory not enough.\n"));
+			// DbgPrintf(TEXT("memory not enough.\n"));
 			break;
 		default:
 			return log_;
@@ -611,8 +611,13 @@ BOOL AddNewSection(LPBYTE* fbuffer,
 	}
 	p_section = GetSectionHeadersPtr(fbuffer[0], section_num - 1) + 1;
 
+#ifdef _WIN64
+	// pe头+节表后的空间 是否充足
+	if (headers_size - ((ULONG64)p_section - (ULONG64)fbuffer[0]) < 80) {
+#else
 	// pe头+节表后的空间 是否充足
 	if (headers_size - ((DWORD)p_section - (DWORD)fbuffer[0]) < 80) {
+#endif
 		// 检查dos 后面垃圾数据
 		if (dos_e_lfanew - 64 > 80)
 		{
@@ -678,7 +683,7 @@ BOOL AddNewSection(LPBYTE* fbuffer,
 		GetOptionalHeaders64Ptr(fbuffer[0])->SizeOfImage = img_size + AutoAlign(new_section_size, section_align);
 	}
 
-	new_fbuffer = (LPBYTE)HeapAlloc(GetProcessHeap(), 0,file_size + new_section_head->SizeOfRawData);
+	new_fbuffer = (LPBYTE)HeapAlloc(GetProcessHeap(),0,file_size + new_section_head->SizeOfRawData);
 	if (!new_fbuffer) return FALSE;
 	memcpy_s(new_fbuffer, file_size + new_section_size, fbuffer[0], file_size);
 	memcpy_s(&new_fbuffer[file_size], new_section_size, new_section_buffer, new_section_size);
@@ -814,3 +819,4 @@ BOOL AddNewSection(LPBYTE* fbuffer,
 
 
 #endif // !defined(AFX_PETOOL_H__BC9AE6DA_8D52_4356_9802_921968C7E3DA__INCLUDED_)
+
