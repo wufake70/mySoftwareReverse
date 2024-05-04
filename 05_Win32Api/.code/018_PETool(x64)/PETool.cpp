@@ -564,14 +564,14 @@ VOID InitModuleList(HWND hDlg)
     //第一列								
     lv.mask = LVCF_TEXT | LVCF_WIDTH | LVCF_SUBITEM;
     lv.pszText = (PTCHAR)TEXT("模块 (0)");				//列标题				
-    lv.cx = 200;								//列宽
+    lv.cx = 220;								//列宽
     lv.iSubItem = 0;                            // 列号
     //ListView_InsertColumn(hListProcess, 0, &lv);								
     SendMessage(hListModule, LVM_INSERTCOLUMN, 0, (LPARAM)&lv);
 
     //第2列								
     lv.pszText = (PTCHAR)TEXT("镜像基址");
-    lv.cx = 100;
+    lv.cx = 170;
     lv.iSubItem = 1;
     ListView_InsertColumn(hListModule, 1, &lv);
     //第3列								
