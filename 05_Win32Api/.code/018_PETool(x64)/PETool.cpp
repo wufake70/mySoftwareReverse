@@ -475,19 +475,19 @@ VOID InitProcessList(HWND hDlg)
     //第一列								
     lv.mask = LVCF_TEXT | LVCF_WIDTH | LVCF_SUBITEM;
     lv.pszText = szText;				//列标题				
-    lv.cx = 200;								//列宽
+    lv.cx = 220;								//列宽
     lv.iSubItem = 0;                            // 列号
     //ListView_InsertColumn(hListProcess, 0, &lv);								
     SendMessage(hListProcess, LVM_INSERTCOLUMN, 0, (LPARAM)&lv);
     //第二列								
     lv.pszText = (PTCHAR)TEXT("PID");
-    lv.cx =80;
+    lv.cx =170;
     lv.iSubItem = 1;
     //ListView_InsertColumn(hListProcess, 1, &lv);								
     SendMessage(hListProcess, LVM_INSERTCOLUMN, 1, (LPARAM)&lv);
     //第三列								
     lv.pszText = (PTCHAR)TEXT("镜像基址");
-    lv.cx = 150;
+    lv.cx = 170;
     lv.iSubItem = 2;
     ListView_InsertColumn(hListProcess, 2, &lv);
     //第四列								
@@ -524,7 +524,7 @@ VOID InsertProcessItem(HWND hListProcess)
         // 第1行,1列			
         SendMessage(hListProcess, LVM_INSERTITEM, 0, (LPARAM)&item);
         // 2row，2column
-        wsprintf(item.pszText, TEXT("0x%X"), (DWORD)it->pid);
+        wsprintf(item.pszText, TEXT("0x%X(%d)"), (DWORD)it->pid, (DWORD)it->pid);
         item.iItem = 0;
         item.iSubItem = 1;
         ListView_SetItem(hListProcess, &item);
