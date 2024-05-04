@@ -227,7 +227,7 @@ BOOL IsPackingEXE(HINSTANCE hInstance)
 
 DWORD UnmapViewOfSection(HANDLE hProcess, PVOID BaseAddress)
 {
-    HMODULE ntdll = LoadLibrary(TEXT("ntdll.dll"));
+    HMODULE ntdll = GetModuleHandleA("ntdll.dll");
     if (ntdll == NULL) {
         // 处理加载失败的情况
         // MessageBox(0, TEXT("FAIL1"), 0, 0);
@@ -238,7 +238,7 @@ DWORD UnmapViewOfSection(HANDLE hProcess, PVOID BaseAddress)
     pNtUnmapViewOfSection NtUnmapViewOfSection = (pNtUnmapViewOfSection)GetProcAddress(ntdll, "NtUnmapViewOfSection");
     if (NtUnmapViewOfSection == NULL) {
         // 处理获取失败的情况
-        FreeLibrary(ntdll);
+        //FreeLibrary(ntdll);
         // MessageBox(0, TEXT("FAIL2"), 0, 0);
         return 1;
     }
@@ -247,13 +247,13 @@ DWORD UnmapViewOfSection(HANDLE hProcess, PVOID BaseAddress)
     DWORD status = NtUnmapViewOfSection(hProcess, BaseAddress);
     if (!(status==0)) {
         // 处理调用失败的情况
-        FreeLibrary(ntdll);
+        //FreeLibrary(ntdll);
         // MessageBox(0, TEXT("FAIL3"), 0, 0);
         return 1;
     }
 
     // 释放ntdll.dll
-    FreeLibrary(ntdll);
+    //FreeLibrary(ntdll);
     // MessageBox(0,TEXT("0K"), 0, 0);
     return 0;
 }

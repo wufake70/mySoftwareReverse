@@ -13,7 +13,6 @@ TCHAR szDlgTitle[0x10] = TEXT("PEtool(x86)");
 #endif // 
 
 
-
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
                      _In_ LPWSTR    lpCmdLine,
@@ -23,10 +22,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     // 判断自身是否为 加壳程序
     if (IsPackingEXE(hInstance))
     {
-        TCHAR currentExePath[MAX_PATH] = { 0 };
-        GetModuleFileName(hInstance,currentExePath,MAX_PATH);
-
-        STARTUPINFO sI = { 0 };
+        CHAR currentExePath[MAX_PATH] = { 0 };
+        GetModuleFileNameA(hInstance,currentExePath,MAX_PATH);
+        
+        STARTUPINFOA sI = { 0 };
         PROCESS_INFORMATION pI = { 0 };
         sI.cb = sizeof(sI);
 
@@ -46,15 +45,15 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         CONTEXT threadContext = { 0 };
 
         // 创建被挂起的进程
-        if (!CreateProcess(
+        if (!CreateProcessA(
             currentExePath,
             NULL,
             NULL,
             NULL,
             FALSE,
             CREATE_SUSPENDED,
-            nullptr,
-            nullptr,
+            NULL,
+            NULL,
             &sI,
             &pI)) return 0;
 
@@ -70,12 +69,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         ullSrcEntryPoint = GetOptionalHeaders64Ptr(lpDecryptedData)->AddressOfEntryPoint;
 
         // 获取外壳程序的Context
-        threadContext.ContextFlags = CONTEXT_ALL;
+        threadContext.ContextFlags = CONTEXT_FULL;
         GetThreadContext(pI.hThread, &threadContext);
 
         // 卸载壳子文件镜像
-        ReadProcessMemory(pI.hProcess, (LPVOID)(threadContext.Rdx + 16), &ullShellImage, 8, 0);
-
+        ReadProcessMemory(pI.hProcess, (LPVOID)(threadContext.Rdx + sizeof(SIZE_T)*2), &ullShellImage, sizeof(SIZE_T), 0);
         if (!(UnmapViewOfSection(pI.hProcess, (PVOID)ullShellImage) == 0))
         {
             CloseHandle(pI.hProcess);
@@ -91,7 +89,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
             (LPVOID)ullSrcImgBase,
             ullSrcImgSize,
             MEM_COMMIT | MEM_RESERVE,
-            PAGE_EXECUTE_READWRITE); // MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE
+            PAGE_EXECUTE_READWRITE);
         // 申请失败，判断 重定位表
         if (!((ULONG64)lpSrcImgBase == ullSrcImgBase))
         {
@@ -120,7 +118,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         // 修改入口信息
         threadContext.Rcx = (ULONG64)lpSrcImgBase + ullSrcEntryPoint;
         ullWritenByteNum = 0;
-        WriteProcessMemory(pI.hProcess, (LPVOID)(threadContext.Rdx + 16), &lpSrcImgBase, 8, &ullWritenByteNum);
+        WriteProcessMemory(pI.hProcess, (LPVOID)(threadContext.Rdx + sizeof(SIZE_T)*2), &lpSrcImgBase, sizeof(SIZE_T), &ullWritenByteNum);
         SetThreadContext(pI.hThread, &threadContext);
 
         ResumeThread(pI.hThread);
@@ -172,7 +170,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         GetThreadContext(pI.hThread,&threadContext); 
 
         // 卸载壳子文件镜像
-        ReadProcessMemory(pI.hProcess, (LPVOID)(threadContext.Ebx + 8), &dwShellImage, 4, 0);
+        ReadProcessMemory(pI.hProcess, (LPVOID)(threadContext.Ebx + sizeof(SIZE_T)*2), &dwShellImage, sizeof(SIZE_T), 0);
         //TCHAR aa[0x10] = { 0 };
         //wsprintf(aa,TEXT("%d\0"),dwShellImage);
         //MessageBox(0,aa,0,0);
@@ -220,7 +218,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         // 修改入口信息
         threadContext.Eax = (DWORD)lpSrcImgBase + dwSrcEntryPoint;
         dwWritenByteNum = 0;
-        WriteProcessMemory(pI.hProcess, (LPVOID)(threadContext.Ebx+8), &lpSrcImgBase, 4, &dwWritenByteNum);
+        WriteProcessMemory(pI.hProcess, (LPVOID)(threadContext.Ebx+ sizeof(SIZE_T) * 2), &lpSrcImgBase, sizeof(SIZE_T), &dwWritenByteNum);
         SetThreadContext(pI.hThread, &threadContext);
 
         //TCHAR a[0x20] = { 0 };
@@ -235,7 +233,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         CloseHandle(pI.hProcess);
         CloseHandle(pI.hThread);
         HeapFree(GetProcessHeap(), 0, lpDecryptedData);
-        HeapFree(GetProcessHeap(), 0, lpImgBuffer);
+        //HeapFree(GetProcessHeap(), 0, lpImgBuffer);
 #endif // _WIN64
 
         return 0;

@@ -263,7 +263,7 @@ BOOL EnableDebugPriv()
 {
     HANDLE hToken;
     LUID Luid;
-    TOKEN_PRIVILEGES tkp;
+    TOKEN_PRIVILEGES tkp = { 0 };
 
     if (!OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &hToken))
     {
@@ -284,6 +284,7 @@ BOOL EnableDebugPriv()
     {
         printf("Ã·»® ß∞‹\n");
         CloseHandle(hToken);
+        return FALSE;
     }
     else
     {
