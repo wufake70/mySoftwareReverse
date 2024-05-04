@@ -1,6 +1,4 @@
-Debug/*.exe
-
 .vs/
+Debug/
 Release/
 x64/
-
