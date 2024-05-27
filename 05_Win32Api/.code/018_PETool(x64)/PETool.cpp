@@ -142,7 +142,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         CONTEXT threadContext = { 0 };
 
         // 创建被挂起的进程
-        if (!CreateProcess(
+        if (!CreateProcessA(
             currentExePath,
             NULL,
             NULL,

