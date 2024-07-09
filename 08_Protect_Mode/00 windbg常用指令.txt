@@ -1,8 +1,10 @@
 清楚屏幕输出
     .cls
+重启
+    .reboot
 
 显示内存
-    db,dw,dd,dq,dq,dbs...
+    db,dc(char),dw,dd,dq,dq,dbs...
     display+数据类型首字符，最后加上s表示以堆栈形式打开，后跟地址值或者寄存器
     命令前加上拓展命令符号 "!"，可以查看物理内存
 
