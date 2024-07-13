@@ -351,10 +351,10 @@ DWORD FileBufferToImageBuffer(IN LPBYTE lpFilebuffer,OUT LPBYTE& lpImageBuffer)
 	switch(log_)
 	{
 		case 2:
-			DbgPrintf(TEXT("get a nullptr.\n"));
+			//DbgPrintf(TEXT("get a nullptr.\n"));
 			break;
 		case 1:
-			DbgPrintf(TEXT("memory not enough.\n"));
+			//DbgPrintf(TEXT("memory not enough.\n"));
 			break;
 		default:
 			return log_;
@@ -816,12 +816,11 @@ BOOL AddNewSection(LPBYTE* fbuffer,
 //}
 
 
-
 BOOL RepairByRelocTable(LPBYTE lpbuffer, SIZE_T NewImgBase)
 {
 	if (lpbuffer == NULL)
 	{
-		// printf("Get a NULL.\n");
+		//printf("Get a NULL.\n");
 		return FALSE;
 	}
 
@@ -855,8 +854,7 @@ BOOL RepairByRelocTable(LPBYTE lpbuffer, SIZE_T NewImgBase)
 	UINT block_item_num = 0;
 	UINT block_item_type = 0;
 
-	p_directory = GetDirectoryEntryPtr((LPBYTE)lpbuffer, 5);  // 重定位表位于第6目录项	
-	if (p_directory->VirtualAddress == 0) return FALSE; // 没有导入表
+	p_directory = GetDirectoryEntryPtr((LPBYTE)lpbuffer, 5);  // 重定位表位于第6目录项											
 	p_relocation = (BASE_RELOCATION*)(&lpbuffer[RVAtoFOA(p_directory->VirtualAddress, (LPBYTE)lpbuffer)]);
 	p_relocation_ = p_relocation;
 	while (1)//virtual_addr!=0&&block_size!=0											
@@ -866,6 +864,7 @@ BOOL RepairByRelocTable(LPBYTE lpbuffer, SIZE_T NewImgBase)
 
 		// 每一个重定向表结构体并不连续，										
 		p_relocation_ = (BASE_RELOCATION*)((char*)p_relocation_ + block_size);
+		if (p_directory->VirtualAddress == 0) return FALSE; // 没有导入表
 		virtual_addr = p_relocation_->VirtualAddress;
 		block_size = p_relocation_->SizeOfBlock;
 
@@ -892,6 +891,7 @@ BOOL RepairByRelocTable(LPBYTE lpbuffer, SIZE_T NewImgBase)
 		else {
 			break;
 		}
+
 		i++;
 	}
 	return TRUE;

@@ -351,10 +351,10 @@ DWORD FileBufferToImageBuffer(IN LPBYTE lpFilebuffer,OUT LPBYTE& lpImageBuffer)
 	switch(log_)
 	{
 		case 2:
-			DbgPrintf(TEXT("get a nullptr.\n"));
+			//DbgPrintf(TEXT("get a nullptr.\n"));
 			break;
 		case 1:
-			DbgPrintf(TEXT("memory not enough.\n"));
+			//DbgPrintf(TEXT("memory not enough.\n"));
 			break;
 		default:
 			return log_;

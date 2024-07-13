@@ -1,0 +1,510 @@
+
+
+
+
+
+
+
+// Check Directory Entry
+void GetDirectoryEntry(char* p)
+{
+	if(p==NULL) DbgPrintf(TEXT("get a NULL.\n"));
+	char* directory_title_en[16]={
+			(char* )"Export Directory",
+			(char* )"Import Directory",
+			(char* )"Resource Directory",
+			(char* )"Exception Directory",
+			(char* )"Security Directory",
+			(char* )"Base Relocation",
+			(char* )"Debug Directory",
+			(char* )"Architecture Specific Data",
+			(char* )"RVA of GP",
+			(char* )"TLS Directory",
+			(char* )"Load Config Directory",
+			(char* )"Bound Import Directory",
+			(char* )"Import Address",
+			(char* )"Delay Import",
+			(char* )"COM Runtime",
+			(char* )"Reserved"		
+	};
+	char* directory_title_zh[16]={
+			(char* )"导出目录",
+			(char* )"导入目录",
+			(char* )"资源目录",
+			(char* )"异常目录",
+			(char* )"安全目录",
+			(char* )"基本重定位表",
+			(char* )"调试目录",
+			(char* )"架构特定数据",
+			(char* )"RVA of GP",
+			(char* )"TLS目录",
+			(char* )"加载配置目录",
+			(char* )"邦定导入目录",
+			(char* )"导入地址表",
+			(char* )"延迟导入描述符",
+			(char* )"COM运行时描述符",
+			(char* )"保留的"
+	};
+	DATA_DIRECTORY* p_directory=NULL;
+	p_directory=GetDirectoryEntryPtr(p,0);
+	char strformat[100];
+	for(int i=0;i<16;i++)
+	{
+		sprintf(strformat,"%s[%s]",directory_title_zh[i],directory_title_en[i]);
+		printCentered(strformat,50);
+		DbgPrintf(TEXT("\tVirtualAddress: 0x%08x\n\tSize: 0x%08x\n"),
+				(&p_directory[i])->VirtualAddress,
+				(&p_directory[i])->Size);
+	}
+	
+}
+
+
+
+// Check Export Directory
+void GetExportDirectory(char* p)
+{
+	if (p == NULL) {
+		DbgPrintf(TEXT("get a NULL.\n"));
+		return;
+	}
+	DATA_DIRECTORY* p_directory=NULL;
+	EXPORT_DIRECTORY* p_export=NULL;
+
+	TCHAR* strformat=(TCHAR* )TEXT("_IMAGE_EXPORT_DIRECTORY{"
+					"\n\t..."
+					"\n\tName: 0x%08x(%s)"
+					"\n\tBase: 0x%08X"
+					"\n\tNumberOfFunctions: 0x%08X"
+					"\n\tNumberOfNames: 0x%08X"
+					"\n\tAddressOfFunctions: 0x%08X"
+					"\n\tAddressOfNames: 0x%08X"
+					"\n\tAddressOfNameOrdinals: 0x%08X\n}\n");
+
+	p_directory=GetDirectoryEntryPtr(p,0);
+	p_export=(EXPORT_DIRECTORY*)(&p[RVAtoFOA(p_directory->VirtualAddress,p)]);
+
+	if(!p_export)
+	{
+		DbgPrintf(TEXT("RVAtoFOA UNsuccessfal.\n"));
+		return ;
+	}
+
+	DbgPrintf(strformat,
+			p_export->Name,&p[RVAtoFOA(p_export->Name,p)],
+			p_export->Base,
+			p_export->NumberOfFunctions,
+			p_export->NumberOfNames,
+			p_export->AddressOfFunctions,
+			p_export->AddressOfNames,
+			p_export->AddressOfNameOrdinals);
+	
+	int fun_num=p_export->NumberOfFunctions;
+	int name_num=p_export->NumberOfNames;
+	void** ptr_fun_addr=(void**)(&p[RVAtoFOA(p_export->AddressOfFunctions,p)]);
+	char** ptr_name_addr=(char**)(&p[RVAtoFOA(p_export->AddressOfNames,p)]);
+	short* ptr_ord_addr=(short*)(&p[RVAtoFOA(p_export->AddressOfNameOrdinals,p)]);
+
+	DbgPrintf(TEXT("Index | Funcaton Address\t | Ordinals \t | Name \t\n"));
+	for(int i=0;i<fun_num;i++)
+	{
+		DbgPrintf(TEXT("%d     | 0x%08X\t\t "),i,(DWORD)ptr_fun_addr[i]);
+		if(i<name_num)
+		{
+			DbgPrintf(TEXT("| %d\t\t | %s\n"),ptr_ord_addr[i],&p[RVAtoFOA((__int64)ptr_name_addr[i],p)]);
+		}else{
+			DbgPrintf(TEXT("| %s\t\t | %s\n"),TEXT("NULL","NULL"));
+		}
+	}
+
+	// modify
+	for(int i=0;i<name_num;i++)
+	{
+		DbgPrintf(TEXT("%d     | 0x%08X\t\t | %d\t\t\t | "),i,NULL,NULL);
+		DbgPrintf(TEXT("%s\n"),&p[RVAtoFOA((__int64)ptr_name_addr[i],p)]);
+	}
+	
+}
+
+
+
+// CheckRelocationInfo
+void GetRelocationInfo(char* p)
+{
+	if(p==NULL)
+	{
+		DbgPrintf(TEXT("Get a NULL.\n"));
+		return ;
+	}
+
+	int i=0;
+	int j=0;
+	DATA_DIRECTORY* p_directory=NULL;
+	BASE_RELOCATION* p_relocation=NULL;
+	BASE_RELOCATION* p_relocation_=NULL;
+	size_t virtual_addr=0;
+	size_t block_size=0; 
+	char str[100];
+	int block_item=0;
+	int block_item_num=0;
+	int block_item_type=0;
+	
+	p_directory=GetDirectoryEntryPtr(p,5);  // 重定位表位于第6目录项
+	p_relocation=(BASE_RELOCATION*)(&p[RVAtoFOA((__int64)p_directory->VirtualAddress,p)]);
+	p_relocation_=p_relocation;
+	while(1)//virtual_addr!=0&&block_size!=0
+	{
+		sprintf(str,"[%dth Block]",i+1);
+		printCentered(str,50);
+
+		// 重定向表结构体并不连续，
+		p_relocation_=(BASE_RELOCATION*)((char*)p_relocation_+block_size);
+		virtual_addr=p_relocation_->VirtualAddress;
+		block_size=p_relocation_->SizeOfBlock;
+
+		if(virtual_addr!=0&&block_size!=0)
+		{
+			block_item_num=(block_size-8)/2;
+			
+			for(j=0;j<block_item_num;j++)
+			{
+				block_item=((WORD*)(&p_relocation_[1]))[j]&4095; // 获取低12位
+				block_item_type=((WORD*)(&p_relocation_[1]))[j]>>12;  //  获取高4位
+				// __int64输出问题
+				DbgPrintf(TEXT("%d  %08X(rva)  %08X(foa)  %d(type)\n"),j,block_item+virtual_addr,(DWORD)RVAtoFOA((__int64)(block_item+virtual_addr),p),block_item_type);
+			}
+			system("pause>nul");
+		}else{
+			break;
+		}
+
+		i++;
+	}
+}
+
+
+
+// Check Import table
+void GetImportTableInfo(char* file_buffer)
+{
+	if(file_buffer==NULL)
+	{
+		DbgPrintf(TEXT("CheckIportTable: file_buffer is a NULL.\n"));
+		return ;
+	}
+	
+	DATA_DIRECTORY* p_directory=GetDirectoryEntryPtr(file_buffer,1);
+	IMPORT_DESCRIPTOR* p_import=(IMPORT_DESCRIPTOR*)(&file_buffer[RVAtoFOA((__int64)p_directory->VirtualAddress,file_buffer)]);
+	IMPORT_DESCRIPTOR* p_import_=p_import;
+
+	int import_num=0;
+	char strformat[100];
+	TCHAR* strformat_=(TCHAR* )"_IMAGE_IMPORT_DESCRIPTOR{"
+						"\n\tOriginalFirstThunk: 0x%08x"
+						"\n\tTimeDateStamp: 0x%08x"
+						"\n\tForwarderChain: 0x%08x"
+						"\n\tName: %s(0x%08x)"
+						"\n\tFirstThunk: 0x%08x\n}\n";
+	int origin_thunk=0;
+	int origin_num=0;
+	int first_thunk=0;
+	int first_num=0;
+	THUNK_DATA32* p_thunk=NULL;
+	THUNK_DATA32* p_thunk_=NULL;
+	while(1)
+	{
+		if(p_import_->OriginalFirstThunk+p_import_->TimeDateStamp+p_import_->ForwarderChain+p_import_->Name+p_import_->FirstThunk)
+		{
+			sprintf(strformat," [ %dth Import Table ] ",++import_num);
+			printCentered(strformat,50);
+			DbgPrintf(strformat_,
+					p_import_->OriginalFirstThunk,
+					p_import_->TimeDateStamp,
+					p_import_->ForwarderChain,
+					&file_buffer[RVAtoFOA((__int64)p_import_->Name,file_buffer)],p_import_->Name,
+					p_import_->FirstThunk);
+		
+			// OriginalFirstThunk INT
+			DbgPrintf(TEXT("\t******** [ OriginalFirstThunk ] ********\n"));
+			p_thunk=(THUNK_DATA32*)(&file_buffer[RVAtoFOA((__int64)p_import_->OriginalFirstThunk,file_buffer)]);
+			while(p_thunk->u1.Ordinal)
+			{
+				//printf("\t%s:%d\n",(p_thunk->u1.Ordinal & 0x80000000)==1?"Ordinal",p_thunk->u1.Ordinal-0x80000000:"Name");
+				(p_thunk->u1.Ordinal & 0x80000000)?
+					DbgPrintf(TEXT("\tOrdinal: %d\n"),
+					p_thunk->u1.Ordinal - 0x80000000)
+				:DbgPrintf(TEXT("\tName: %d-%s\n"),
+					((IMPORT_BY_NAME*)(&file_buffer[RVAtoFOA((__int64)p_thunk->u1.AddressOfData,file_buffer)]))->Hint,
+					((IMPORT_BY_NAME*)(&file_buffer[RVAtoFOA((__int64)p_thunk->u1.AddressOfData,file_buffer)]))->Name);
+				p_thunk++;
+				
+			}
+			// FirstThunk	IAT
+			DbgPrintf(TEXT("\t******** [ FirstThunk ] ********\n"));
+			p_thunk=(THUNK_DATA32*)(&file_buffer[RVAtoFOA((__int64)p_import_->FirstThunk,file_buffer)]);
+			while(p_thunk->u1.Ordinal)
+			{
+				//printf("\t%s:%d\n",(p_thunk->u1.Ordinal & 0x80000000)==1?"Ordinal",p_thunk->u1.Ordinal-0x80000000:"Name");
+				(p_thunk->u1.Ordinal & 0x80000000)?
+					DbgPrintf(TEXT("\tOrdinal: %d\n"),
+					p_thunk->u1.Ordinal - 0x80000000)
+				:((int)p_import_->TimeDateStamp==-1)?	// if timestamp==-1,pinrtf address ...
+					DbgPrintf(TEXT("\tFun_Addr: 0x%x\n"),(++p_thunk)->u1.Function)
+					:DbgPrintf(TEXT("\tName: %d-%s\n"),
+						((IMPORT_BY_NAME*)(&file_buffer[RVAtoFOA((__int64)p_thunk->u1.AddressOfData,file_buffer)]))->Hint,
+						((IMPORT_BY_NAME*)(&file_buffer[RVAtoFOA((__int64)p_thunk->u1.AddressOfData,file_buffer)]))->Name);
+				p_thunk++;
+				//system("pause>nul");
+			}
+			
+			p_import_=(IMPORT_DESCRIPTOR*)(((char*)p_import_)+20);
+			// printf("debug: %x\n",p_import_);
+
+			system("pause>nul");
+		}else{
+			DbgPrintf(TEXT("Over...\n"));
+			break;
+		}
+	}
+}
+
+
+
+// Check Bound Import
+void GetBoundImportInfo(char* file_buffer)
+{
+	if(file_buffer==NULL)
+	{
+		DbgPrintf(TEXT("CheckBoundImport: file_buffer is a NULL.\n"));
+		return ;
+	}
+
+	DATA_DIRECTORY* p_directory=GetDirectoryEntryPtr(file_buffer,11);
+	if(p_directory->VirtualAddress==NULL)  // maybe 0x00000000
+	{
+		DbgPrintf(TEXT("CheckBoundImport: no Bound Import Table.\n"));
+		return ;
+	}
+	// bound import behind the section head
+	BOUND_IMPORT_DESCRIPTOR* p_bound=(BOUND_IMPORT_DESCRIPTOR*)(&file_buffer[RVAtoFOA((__int64)p_directory->VirtualAddress,file_buffer)]);
+	BOUND_IMPORT_DESCRIPTOR* p_bound_=p_bound;
+	BOUND_FORWARDER_REF* p_ref=NULL;
+	int bound_ref_num=0;
+	DWORD first_offset_name=p_directory->VirtualAddress;
+
+	TCHAR* strformat=(TCHAR* )"_IMAGE_BOUND_IMPORT_DESCRIPTOR{"
+				"\n\tTimeDateStamp: %d(%s)"
+				"\n\tOffsetModuleName: 0x%x(%s)"
+				"\n\tNumberOfModuleForwarderRefs: %d\n}\n";
+
+	TCHAR* strformat_=(TCHAR* )"_IMAGE_BOUND_FORWARDER_REF{"
+				"\n\tTimeDateStamp: %d(%s)"
+				"\n\tOffsetModuleName: 0x%x(%s)"
+				"\n\tReserved: %d\n}\n";
+	// timestamp
+	struct tm* time_info=NULL;
+	char time_buffer[80];
+	
+	while(p_bound_->TimeDateStamp+p_bound_->OffsetModuleName+p_bound_->NumberOfModuleForwarderRefs)
+	{
+		time_info=localtime((const time_t*)&p_bound_->TimeDateStamp);
+		strftime(time_buffer,sizeof(time_buffer),"%Y-%m-%d %H:%M:%S",time_info);
+
+		DbgPrintf(strformat,
+				p_bound_->TimeDateStamp,time_buffer,
+				p_bound_->OffsetModuleName,&file_buffer[p_bound_->OffsetModuleName+first_offset_name],
+				p_bound_->NumberOfModuleForwarderRefs);
+
+		bound_ref_num=p_bound_->NumberOfModuleForwarderRefs;
+		for(int i=0;i<bound_ref_num;i++)
+		{
+			p_ref=(BOUND_FORWARDER_REF*)(&p_bound_[i+1]);
+			time_info=localtime((const time_t*)&p_ref->TimeDateStamp);
+			strftime(time_buffer,sizeof(time_buffer),"%Y-%m-%d %H:%M:%S",time_info);
+			
+			DbgPrintf(strformat_,
+				p_ref->TimeDateStamp,time_buffer,
+				p_ref->OffsetModuleName,&file_buffer[p_ref->OffsetModuleName+first_offset_name],
+				p_ref->Reserved);
+		}
+		p_bound_=&p_bound_[bound_ref_num+1];
+	}
+}
+
+void GetResourceTableInfo(char* file_buffer)
+{
+	if(file_buffer==NULL)
+	{
+		DbgPrintf(TEXT("CheckBoundImport: file_buffer is a NULL.\n"));
+		return ;
+	}
+
+	DATA_DIRECTORY* p_directory=GetDirectoryEntryPtr(file_buffer,2);
+	if(p_directory->VirtualAddress==NULL)  // maybe 0x00000000
+	{
+		DbgPrintf(TEXT("CheckResourceTable: no Recource Table.\n"));
+		return ;
+	}
+
+	RESOURCE_DIRECTORY* p_resource_type = (RESOURCE_DIRECTORY*)(&file_buffer[RVAtoFOA((__int64)p_directory->VirtualAddress,file_buffer)]);
+	RESOURCE_DIRECTORY_ENTRY* p_resource_entry = NULL;
+	size_t type_number = p_resource_type->NumberOfNamedEntries+p_resource_type->NumberOfIdEntries;
+	
+	RESOURCE_DIR_STRING_U* pstr=NULL;
+	wchar_t name[0x30]={0};
+
+	printCentered("RESOURCE TABLE",50);
+	DbgPrintf(TEXT("INDEX\tID\tNAME\tPS\n"));
+	for(size_t i=0;i < type_number;i++)
+	{
+		p_resource_entry=&((RESOURCE_DIRECTORY_ENTRY*)(&p_resource_type[1]))[i];
+
+		// unicode or id
+		if(p_resource_entry->NameIsString)
+		{
+			pstr=(RESOURCE_DIR_STRING_U*)((char*)p_resource_type+p_resource_entry->NameOffset);
+			memset(name,0,0x30);
+			memcpy(name,pstr->NameString,pstr->Length*(sizeof (wchar_t)));
+			wprintf(L"%d\tNULL\t%s\tNULL\n",i,name);
+		}else{
+			switch(p_resource_entry->NameOffset)
+			{
+				
+			case (DWORD)RT_CURSOR:
+				DbgPrintf(TEXT("%d\t%d\tNULL\tRT_CURSOR\n"),i,p_resource_entry->NameOffset);
+				break;
+			case (DWORD)RT_BITMAP:
+				DbgPrintf(TEXT("%d\t%d\tNULL\tRT_BITMAP\n"),i,p_resource_entry->NameOffset);
+				 break;
+			case (DWORD)RT_ICON:
+				DbgPrintf(TEXT("%d\t%d\tNULL\tRT_ICON\n"),i,p_resource_entry->NameOffset);
+				 break;
+			case (DWORD)RT_MENU:
+				DbgPrintf(TEXT("%d\t%d\tNULL\tRT_MENU\n"),i,p_resource_entry->NameOffset);
+				 break;
+			case (DWORD)RT_DIALOG:
+				DbgPrintf(TEXT("%d\t%d\tNULL\tRT_DIALOG\n"),i,p_resource_entry->NameOffset);
+				 break;
+			case (DWORD)RT_STRING:
+				DbgPrintf(TEXT("%d\t%d\tNULL\tRT_STRING\n"),i,p_resource_entry->NameOffset);
+				 break;
+			case (DWORD)RT_FONTDIR:
+				DbgPrintf(TEXT("%d\t%d\tNULL\tRT_FONTDIR\n"),i,p_resource_entry->NameOffset);
+				 break;
+			case (DWORD)RT_FONT:
+				DbgPrintf(TEXT("%d\t%d\tNULL\tRT_FONT\n"),i,p_resource_entry->NameOffset);
+				 break;
+			case (DWORD)RT_ACCELERATOR:
+				DbgPrintf(TEXT("%d\t%d\tNULL\tRT_ACCELERATOR\n"),i,p_resource_entry->NameOffset);
+				 break;
+			case (DWORD)RT_RCDATA:
+				DbgPrintf(TEXT("%d\t%d\tNULL\tRT_RCDATA\n"),i,p_resource_entry->NameOffset);
+				 break;
+			case (DWORD)RT_MESSAGETABLE:
+				DbgPrintf(TEXT("%d\t%d\tNULL\tRT_MESSAGETABLE\n"),i,p_resource_entry->NameOffset);
+				 break;
+			case (DWORD)RT_GROUP_CURSOR:
+				DbgPrintf(TEXT("%d\t%d\tNULL\tRT_GROUP_CURSOR\n"),i,p_resource_entry->NameOffset);
+				 break;
+			case (DWORD)RT_GROUP_ICON:
+				DbgPrintf(TEXT("%d\t%d\tNULL\tRT_GROUP_ICON\n"),i,p_resource_entry->NameOffset);
+				 break;
+			case (DWORD)RT_VERSION:
+				DbgPrintf(TEXT("%d\t%d\tNULL\tRT_VERSION\n"),i,p_resource_entry->NameOffset);
+				 break;
+			case (DWORD)RT_DLGINCLUDE:
+				DbgPrintf(TEXT("%d\t%d\tNULL\tRT_DLGINCLUDE\n"),i,p_resource_entry->NameOffset);
+				 break;
+			case (DWORD)RT_PLUGPLAY:
+				DbgPrintf(TEXT("%d\t%d\tNULL\tRT_PLUGPLAY\n"),i,p_resource_entry->NameOffset);
+				 break;
+			case (DWORD)RT_VXD:
+				DbgPrintf(TEXT("%d\t%d\tNULL\tRT_VXD\n"),i,p_resource_entry->NameOffset);
+				 break;
+			case (DWORD)RT_ANICURSOR:
+				DbgPrintf(TEXT("%d\t%d\tNULL\tRT_ANICURSOR\n"),i,p_resource_entry->NameOffset);
+				 break;
+			case (DWORD)RT_ANIICON:
+				DbgPrintf(TEXT("%d\t%d\tNULL\tRT_ANIICON\n"),i,p_resource_entry->NameOffset);
+				 break;
+			case (DWORD)RT_HTML:
+				DbgPrintf(TEXT("%d\t%d\tNULL\tRT_HTML\n"),i,p_resource_entry->NameOffset);
+				 break;
+			default:
+				DbgPrintf(TEXT("%d\t%d\tNULL\tNULL\n"),i,p_resource_entry->NameOffset);
+			}
+		}
+	}
+}
+
+
+void GetResourceInfo(char* file_buffer,size_t index)
+{
+	if(file_buffer==NULL)
+	{
+		DbgPrintf(TEXT("CheckBoundImport: Get a NULL.\n"));
+		return ;
+	}
+
+	DATA_DIRECTORY* p_directory=GetDirectoryEntryPtr(file_buffer,2);
+	if(p_directory->VirtualAddress==NULL)  // maybe 0x00000000
+	{
+		DbgPrintf(TEXT("CheckResourceTable: no Recource Table.\n"));
+		return ;
+	}
+
+	RESOURCE_DIRECTORY* p_resource_type = (RESOURCE_DIRECTORY*)(&file_buffer[RVAtoFOA((__int64)p_directory->VirtualAddress,file_buffer)]);
+	RESOURCE_DIRECTORY* p_resource_serial = NULL;
+	RESOURCE_DIRECTORY* p_resource_charset = NULL;
+	RESOURCE_DIRECTORY_ENTRY* p_resource_entry = &((RESOURCE_DIRECTORY_ENTRY*)(&p_resource_type[1]))[index];
+	RESOURCE_DIRECTORY_ENTRY* p_resource_serial_entry=NULL;
+	RESOURCE_DIRECTORY_ENTRY* p_resource_charset_entry=NULL;
+	RESOURCE_DATA_ENTRY* p_resource_charset_entry_=NULL;
+	 
+	DATA_DIRECTORY* p_data = NULL;
+	size_t serial_num = 0;
+
+	RESOURCE_DIR_STRING_U* pstr = NULL;
+	wchar_t name[0x30]={0};
+	if(p_resource_entry->DataIsDirectory)
+	{
+		p_resource_serial = (RESOURCE_DIRECTORY*)((char*)p_resource_type+p_resource_entry->OffsetToDirectory);
+		serial_num = p_resource_serial->NumberOfNamedEntries+p_resource_serial->NumberOfIdEntries;
+		// printf("Debug: %d\n",serial_num);
+		printCentered("RESOURCE ENTRY",40);
+
+		for(size_t i=0;i<serial_num;i++)
+		{
+			p_resource_serial_entry = &((RESOURCE_DIRECTORY_ENTRY*)(&p_resource_serial[1]))[i];
+			// unicode or id
+			if(p_resource_serial_entry->NameIsString)
+			{
+				pstr = (RESOURCE_DIR_STRING_U*)((char*)p_resource_type+p_resource_serial_entry->NameOffset);
+				memset(name,0,0x30);
+				memcpy(name,pstr->NameString,pstr->Length*(sizeof(wchar_t)));
+
+				// 代码页(字符集)
+				p_resource_charset = (RESOURCE_DIRECTORY*)((char*)p_resource_type+p_resource_serial_entry->OffsetToDirectory);
+				p_resource_charset_entry = (RESOURCE_DIRECTORY_ENTRY*)&p_resource_charset[1];
+				p_resource_charset_entry_ = (RESOURCE_DATA_ENTRY*)((char*)p_resource_type+p_resource_charset_entry->OffsetToDirectory);
+
+				wprintf(L"\tindex: %d\n\tid: null\n\tname: %s\n\tcode page: %d\n\tRVA: 0x%x\n\tFOA: 0x%x\n\tSize: 0x%x\n\n",i,name,
+														p_resource_charset_entry_->CodePage,
+														p_resource_charset_entry_->OffsetToData,
+														(int)RVAtoFOA((__int64)p_resource_charset_entry_->OffsetToData,file_buffer),
+														p_resource_charset_entry_->Size);
+			}else{
+				// 代码页(字符集)
+				p_resource_charset = (RESOURCE_DIRECTORY*)((char*)p_resource_type+p_resource_serial_entry->OffsetToDirectory);
+				p_resource_charset_entry = (RESOURCE_DIRECTORY_ENTRY*)&p_resource_charset[1];
+				p_resource_charset_entry_ = (RESOURCE_DATA_ENTRY*)((char*)p_resource_type+p_resource_charset_entry->OffsetToDirectory);
+
+				DbgPrintf(TEXT("\tindex: %d\n\tid: %d\n\tname: null\n\tcode page: %d\n\tRVA: 0x%x\n\tFOA: 0x%x\n\tSize: 0x%x\n\n"),i,p_resource_serial_entry->NameOffset,
+														p_resource_charset_entry_->CodePage,
+														p_resource_charset_entry_->OffsetToData,
+														(int)RVAtoFOA((__int64)p_resource_charset_entry_->OffsetToData,file_buffer),
+														p_resource_charset_entry_->Size);
+			}
+		}
+	}	
+}
