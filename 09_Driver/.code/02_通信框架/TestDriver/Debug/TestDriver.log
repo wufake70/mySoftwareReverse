@@ -1,0 +1,15 @@
+﻿  Building 'TestDriver' with toolset 'WindowsKernelModeDriver10.0' and the 'Desktop' target platform.
+  main.c
+c:\users\admin\source\repos\testdriver\testdriver\main.c(11): warning C4305: “类型强制转换”: 从“ULONG64”到“PTest”截断
+c:\users\admin\source\repos\testdriver\testdriver\main.c(17): warning C4305: “类型强制转换”: 从“ULONG64”到“PTest”截断
+c:\users\admin\source\repos\testdriver\testdriver\main.c(31): warning C4100: “pReg”: 未引用的形参
+  R0Comnicate.c
+c:\users\admin\source\repos\testdriver\testdriver\r0comnicate\r0comnicate.c(7): warning C4100: “DeviceObject”: 未引用的形参
+c:\users\admin\source\repos\testdriver\testdriver\r0comnicate\r0comnicate.c(15): warning C4100: “DeviceObject”: 未引用的形参
+  正在生成代码...
+  TestDriver.vcxproj -> C:\Users\admin\source\repos\TestDriver\Debug\TestDriver.sys
+  Done Adding Additional Store
+  Successfully signed: C:\Users\admin\source\repos\TestDriver\Debug\TestDriver.sys
+  
+  Inf2Cat task was skipped as there were no inf files to process
+  

@@ -1,0 +1,13 @@
+﻿  Building 'TestDriver' with toolset 'WindowsKernelModeDriver10.0' and the 'Desktop' target platform.
+  main.c
+c:\users\admin\source\repos\testdriver\testdriver\main.c(35): warning C4100: “pReg”: 未引用的形参
+c:\users\admin\source\repos\testdriver\testdriver\main.c(75): warning C4100: “DeviceObject”: 未引用的形参
+c:\users\admin\source\repos\testdriver\testdriver\main.c(86): warning C4100: “DeviceObject”: 未引用的形参
+c:\users\admin\source\repos\testdriver\testdriver\main.c(97): warning C4100: “DeviceObject”: 未引用的形参
+c:\users\admin\source\repos\testdriver\testdriver\main.c(106): warning C4189: “inputBufLen”: 局部变量已初始化但不引用
+  TestDriver.vcxproj -> C:\Users\admin\source\repos\TestDriver\Debug\TestDriver.sys
+  Done Adding Additional Store
+  Successfully signed: C:\Users\admin\source\repos\TestDriver\Debug\TestDriver.sys
+  
+  Inf2Cat task was skipped as there were no inf files to process
+  
