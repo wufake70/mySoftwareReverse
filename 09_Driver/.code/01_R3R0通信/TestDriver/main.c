@@ -64,6 +64,8 @@ NTSTATUS DriverEntry(PDRIVER_OBJECT pDriver, PUNICODE_STRING pReg)
 	// 数据传输类型: DO_BUFFERED_IO 缓冲区读写，复制一份。
 	//				 DO_DIRECT_IO 直接读写，共享一个物理页
 	pDevice->Flags |= DO_BUFFERED_IO;
+	pDevice->Flags &= DO_DEVICE_INITIALIZING;// 去掉设备初始化
+
 
 	// R3也无法访问设备对象，需要创建符号链接
 	status = IoCreateSymbolicLink(&SymbolLinkName,&DeviceName);
