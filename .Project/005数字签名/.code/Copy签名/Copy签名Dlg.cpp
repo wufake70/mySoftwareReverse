@@ -14,6 +14,8 @@
 
 // msvc v140版本(vs2015)编译
 
+
+// Cstring 对象在赋值时，字符数组是动态申请的
 CString NewFileFullPath;
 CString fileSuffix;
 
