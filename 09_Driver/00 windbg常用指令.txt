@@ -47,3 +47,6 @@ bug分析
 堆栈回溯
     kv
     dds esp
+
+加载符号
+    .reload

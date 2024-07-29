@@ -1,0 +1,27 @@
+bcdedit
+
+bcdedit /copy {current} /d debug
+
+
+bcdedit /displayorder {6ebe99f0-cf67-11eb-99ea-000c2915a63a} /addlast
+
+bcdedit /dbgsettings SERIAL DEBUGPORT:1 BAUDRATE:115200
+
+ bcdedit /bootdebug {6ebe99f0-cf67-11eb-99ea-000c2915a63a} ON
+
+
+bcdedit /debug {6ebe99f0-cf67-11eb-99ea-000c2915a63a} ON
+
+bcdedit /timeout 30
+
+090f876d-0a19-11eb-91ce-f2d2a66b6220
+
+
+//虚拟机配置
+
+"C:\Program Files (x86)\Windows Kits\8.1\Debuggers\x86\windbg.exe" -y SRV*E:\symbol*http://msdl.microsoft.com/download/symbols -b -k com:port=//./pipe/com_1,baud=115200,pipe
+
+环境变量配置
+_NT_SYMBOL_PATH
+
+SRV*E:\symbol* https://msdl.microsoft.com/download/symbols
