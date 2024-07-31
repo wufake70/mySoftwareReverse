@@ -41,7 +41,7 @@ PUCHAR FileToImage(char * fileBuffer)
 	return imageBuffer;
 }
 
-//获取到 LoadLibraryExW
+// 通过名字获取导出函数
 ULONG64 ExportTableFuncByName(char * pData, char * funcName)
 {
 	PIMAGE_DOS_HEADER pHead = (PIMAGE_DOS_HEADER)pData;
