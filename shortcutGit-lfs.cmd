@@ -1,8 +1,8 @@
 @echo off
 chcp 65001 >nul
 color 2
-git add .
-git commit . -m"%date% %time%"
+git add "*.idb"
+git commit "*.idb" -m"%date% %time%"
 git push origin master
 set /p input=Go to Git[Y/N]:
 
