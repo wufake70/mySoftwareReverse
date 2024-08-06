@@ -3,14 +3,14 @@ bcdedit
 bcdedit /copy {current} /d debug
 
 
-bcdedit /displayorder {6ebe99f0-cf67-11eb-99ea-000c2915a63a} /addlast
+bcdedit /displayorder {1e971a4e-b4f5-11ee-b594-e2c390c3eda8} /addlast
 
 bcdedit /dbgsettings SERIAL DEBUGPORT:1 BAUDRATE:115200
 
- bcdedit /bootdebug {6ebe99f0-cf67-11eb-99ea-000c2915a63a} ON
+ bcdedit /bootdebug {1e971a4e-b4f5-11ee-b594-e2c390c3eda8} ON
 
 
-bcdedit /debug {6ebe99f0-cf67-11eb-99ea-000c2915a63a} ON
+bcdedit /debug {1e971a4e-b4f5-11ee-b594-e2c390c3eda8} ON
 
 bcdedit /timeout 30
 
