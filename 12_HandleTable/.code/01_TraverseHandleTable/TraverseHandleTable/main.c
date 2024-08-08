@@ -92,7 +92,8 @@ NTSTATUS DriverEntry(PDRIVER_OBJECT pDriver,PUNICODE_STRING pReg) {
 	ULONG_PTR *pObTypeIndexTable = NULL;
 	PHANDLE_TABLE pGHandleTable = NULL;
 	PHANDLE_TABLE_ENTRY TableCodeAddr = NULL;
-	UINT32 TableCount = 0;
+	UINT32 TableLevel = 0;	// 句柄目录层级
+	UINT32 TableCount = 0;  // 句柄表数量
 	UINT32 index = 0;
 	PEPROCESS pEProcess = NULL;
 	PUNICODE_STRING pUni_ProcName = NULL;
@@ -102,14 +103,19 @@ NTSTATUS DriverEntry(PDRIVER_OBJECT pDriver,PUNICODE_STRING pReg) {
 	pObTypeIndexTable = *(ULONG_PTR*)((PUCHAR)ObGetObjectType + 0xf);
 	KdPrintEx((77,0,"PspCidTable:%08x\tObTypeIndexTable:%08x\n", *pPspCidTable, pObTypeIndexTable));
 	pGHandleTable = (PHANDLE_TABLE)*pPspCidTable;
-	TableCount = pGHandleTable->TableCode & 0x00000003; // 低两位
+	TableLevel = pGHandleTable->TableCode & 0x00000003; // 低两位，客户机一般就为 1，一张句柄目录表(1024*516)
+	
+	while (((PHANDLE_TABLE_ENTRY*)(pGHandleTable->TableCode & 0xfffffffe))[index]) index++;
+	TableCount = index;
+
 	//KdPrintEx((77,0,"%x\n", TableCodeAddr));
 
 
 	//KdBreakPoint();
-	for (int i = 0; i <= TableCount; i++) {
+	for (int i = 0; i < TableCount; i++) {
 		TableCodeAddr = ((PHANDLE_TABLE_ENTRY*)(pGHandleTable->TableCode & 0xfffffffe))[i];
 		index = 0;
+		if (MmIsAddressValid(TableCodeAddr) == FALSE)break;
 		// 遍历第i张表
 		while (1) {
 			// 判断是否超过表索引
