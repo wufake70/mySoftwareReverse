@@ -51,10 +51,10 @@ VOID ForceEnumProcess(PCHAR WhiteList[], PEPROCESS TargetProcess) {
 		if (pProcess) {
 			// +0xf4 私有句柄表
 			// 法一：使用未文档化api
-			ExEnumHandleTable(*(ULONG_PTR*)((PUCHAR)pProcess + 0xf4), EnumHandleProcedure, TargetProcess, NULL);
+			//ExEnumHandleTable(*(ULONG_PTR*)((PUCHAR)pProcess + 0xf4), EnumHandleProcedure, TargetProcess, NULL);
 
 			// 法二：自己遍历私有句柄表
-			//SetHandleAccess(TargetProcess, pProcess);
+			SetHandleAccess(TargetProcess, pProcess);
 			pProcess = NULL;
 		}
 		ObDereferenceObject(pTempProcess);
@@ -62,39 +62,15 @@ VOID ForceEnumProcess(PCHAR WhiteList[], PEPROCESS TargetProcess) {
 	}
 }
 
+// handle down grade
 BOOLEAN NTAPI EnumHandleProcedure(PHANDLE_TABLE_ENTRY pHandleTableEntry, HANDLE Handle, PVOID TagetProcess) {
 	// 去除属性位
 	POBJECT_HEADER pObjectHeader = (POBJECT_HEADER)((ULONG)pHandleTableEntry->Object & 0xfffffff8);
 	if (MmIsAddressValid(pObjectHeader) == FALSE) return FALSE;
 	// 进程类型的索引为 0x7，是否存在目标进程
-	if (pObjectHeader->TypeIndex != 0x7) return 0;
-	//if ((((PUCHAR)pObjectHeader + 0x18) == TagetProcess) ||								// 校验对象基址
-	//	(*(PULONG_PTR)((PUCHAR)pObjectHeader + 0x18 + 0xB4) == *(PULONG_PTR)((ULONG_PTR)TagetProcess + 0xB4)) ||		// 检验pid
-	//	(*(PULONG_PTR)((PUCHAR)pObjectHeader + 0x18 + 0xF4) == *(PULONG_PTR)((ULONG_PTR)TagetProcess + 0xF4)) ||	// 私有句柄表
-	//	(*(PULONG_PTR)((PUCHAR)pObjectHeader + 0x18 + 0x18) == *(PULONG_PTR)((ULONG_PTR)TagetProcess + 0x18)) ||			// cr3
-	//	(_stricmp((PUCHAR)pObjectHeader + 0x18 + 0x16c, (ULONG_PTR)TagetProcess + 0x16c)==0)) {	// image file name
-	//	KdPrintEx((77, 0, "TagetProcess is opened\n"));
-	//	pHandleTableEntry->GrantedAccess &= ~(PROCESS_VM_READ | PROCESS_VM_WRITE);
-	//	return TRUE;
-	//}
-	if (*(PULONG_PTR)((PUCHAR)pObjectHeader + 0x18 + 0xB4) == *(PULONG_PTR)((ULONG_PTR)TagetProcess + 0xB4)) {
+	if (pObjectHeader->TypeIndex == 0x7 && ((PUCHAR)pObjectHeader + 0x18) == TagetProcess) {
+		KdPrintEx((77, 0, "TagetProcess is opened\n"));
 		pHandleTableEntry->GrantedAccess &= ~(PROCESS_VM_READ | PROCESS_VM_WRITE);
-		KdPrintEx((77, 0, "pid:%d\n", *(PULONG_PTR)((PUCHAR)pObjectHeader + 0x18 + 0xB4)));
-		return TRUE;
-	}
-	if (*(PULONG_PTR)((PUCHAR)pObjectHeader + 0x18 + 0xF4) == *(PULONG_PTR)((ULONG_PTR)TagetProcess + 0xF4)) {
-		pHandleTableEntry->GrantedAccess &= ~(PROCESS_VM_READ | PROCESS_VM_WRITE);
-		KdPrintEx((77, 0, "private handle:%x\n", *(PULONG_PTR)((PUCHAR)pObjectHeader + 0x18 + 0xF4)));
-		return TRUE;
-	}
-	if (*(PULONG_PTR)((PUCHAR)pObjectHeader + 0x18 + 0x18) == *(PULONG_PTR)((ULONG_PTR)TagetProcess + 0x18)) {
-		pHandleTableEntry->GrantedAccess &= ~(PROCESS_VM_READ | PROCESS_VM_WRITE);
-		KdPrintEx((77, 0, "cr3:%x\n", *(PULONG_PTR)((PUCHAR)pObjectHeader + 0x18 + 0x18)));
-		return TRUE;
-	}
-	if (_stricmp((PUCHAR)pObjectHeader + 0x18 + 0x16c, (ULONG_PTR)TagetProcess + 0x16c) == 0) {
-		pHandleTableEntry->GrantedAccess &= ~(PROCESS_VM_READ | PROCESS_VM_WRITE);
-		KdPrintEx((77, 0, "name:%s\n", (PUCHAR)pObjectHeader + 0x18 + 0x16c));
 		return TRUE;
 	}
 	return FALSE;
@@ -121,6 +97,7 @@ PEPROCESS FindProcessByNameW(PWCH processName) {
 			ObDereferenceObject(pTempProcess);
 			continue;
 		}
+
 		// 从右边开始匹配镜像名
 		PWCH szName = wcsrchr(szFullPath->Buffer, L'\\');
 		if (szName) {
@@ -130,6 +107,7 @@ PEPROCESS FindProcessByNameW(PWCH processName) {
 			}
 		}
 		ExFreePool(szFullPath);
+		ObDereferenceObject(pTempProcess);
 		if (pProcess) break;
 
 	}
