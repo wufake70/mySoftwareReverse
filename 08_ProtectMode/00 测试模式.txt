@@ -1,0 +1,14 @@
+进入测试模式可以禁止驱动校验签名
+
+    bcdedit /set testsigning on #打开测试模式
+    bcdedit /set nointegritychecks on #禁用掉驱动签名检测
+
+Win7、Win8
+    以管理员模式运行cmd执行如下命令：
+    强制关闭 bcdedit.exe -set loadoptions DDISABLE_INTEGRITY_CHECKS
+    启动 bcdedit.exe -set loadoptions ENABLE_INTEGRITY_CHECKS
+
+Win10
+    以管理员模式运行cmd执行如下命令：
+    禁用签名 bcdedit.exe /set nointegritychecks on
+    恢复签名 bcdedit.exe /set nointegritychecks off
