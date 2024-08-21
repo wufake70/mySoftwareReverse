@@ -1,7 +1,7 @@
 @echo off
 chcp 65001 >nul
 color 2
-git lfs track "*.idb"
+git lfs untrack "*.idb"
 git add .
 git commit . -m"%date% %time%"
 git push origin master
