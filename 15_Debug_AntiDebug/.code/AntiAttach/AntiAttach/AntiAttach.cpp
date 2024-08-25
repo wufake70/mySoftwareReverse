@@ -1,6 +1,5 @@
 ﻿#include <iostream>
 #include <Windows.h>
-#include <intrin.h>
 #include "Search.h"
 
 
