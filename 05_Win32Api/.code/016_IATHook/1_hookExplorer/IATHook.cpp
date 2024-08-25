@@ -9,7 +9,7 @@
 BOOL IATHook64(LPVOID lpOldFuncAddr, LPWSTR lpModuleOfFunc, LPVOID lpNewFuncAddr, LPWSTR lpModuleToScan);
 #else
 #define IATHook IATHook32
-BOOL IATHook32(LPVOID lpOldFuncAddr, LPVOID lpNewFuncAddr);
+BOOL IATHook32(LPVOID lpOldFuncAddr, LPWSTR lpModuleOfFunc, LPVOID lpNewFuncAddr, LPWSTR lpModuleToScan);
 #endif
 
 // MessageBox函数指针，劫持后在继续运行
@@ -41,30 +41,6 @@ BOOL IATHook64(LPVOID lpOldFuncAddr, LPWSTR lpModuleOfFunc,LPVOID lpNewFuncAddr,
     pImportTable = (IMPORT_DESCRIPTOR*)(pImportTableEntry[0].VirtualAddress + (ULONG64)hItself);
     if (pImportTable == NULL) return FALSE;
     do {
-        //ZeroMemory(charModule,0x50);
-        //if (lpModuleOfFunc)
-        //{
-        //    WideCharToMultiByte(CP_ACP, 0, lpModuleOfFunc, -1, charModule, 0x50, NULL, NULL);
-
-        //    if ((PCHAR)(pImportTable[0].Name + (ULONG64)hItself)==NULL) return FALSE;
-        //    if (_stricmp((PCHAR)(pImportTable[0].Name+(ULONG64)hItself), charModule) != 0)
-        //    {
-        //        pImportTable++;
-        //        if (pImportTable[0].Characteristics ||
-        //            pImportTable[0].FirstThunk ||
-        //            pImportTable[0].ForwarderChain ||
-        //            pImportTable[0].Name ||
-        //            pImportTable[0].OriginalFirstThunk ||
-        //            pImportTable[0].TimeDateStamp)
-        //        {
-
-        //        continue;
-        //        }
-        //        return FALSE;
-        //    }
-
-        //}
-
         pIATThunk = (THUNK_DATA64*)(pImportTable[0].FirstThunk + (ULONG64)hItself);
         if (!pIATThunk) return FALSE;
         do {
@@ -98,7 +74,7 @@ BOOL IATHook64(LPVOID lpOldFuncAddr, LPWSTR lpModuleOfFunc,LPVOID lpNewFuncAddr,
 }
 #else
 
-BOOL IATHook32(LPVOID lpOldFuncAddr, LPVOID lpNewFuncAddr)
+BOOL IATHook32(LPVOID lpOldFuncAddr, LPWSTR lpModuleOfFunc, LPVOID lpNewFuncAddr, LPWSTR lpModuleToScan)
 {
     TCHAR szItselfPath[MAX_PATH] = { 0 };
     GetModuleFileName(NULL, szItselfPath, MAX_PATH);
@@ -107,6 +83,15 @@ BOOL IATHook32(LPVOID lpOldFuncAddr, LPVOID lpNewFuncAddr)
     IMPORT_DESCRIPTOR* pImportTable = NULL;
     THUNK_DATA32* pIATThunk = NULL;
     DWORD dwOldProtect = 0;
+
+    if (!lpModuleToScan)
+    {
+        GetModuleFileName(NULL, szItselfPath, MAX_PATH);
+        hItself = LoadLibrary(szItselfPath);
+    }
+    else {
+        hItself = LoadLibrary(lpModuleToScan);
+    }
 
     pImportTableEntry = GetDirectoryEntryPtr((LPBYTE)hItself, 1);
     // 导入表一个dll描述信息

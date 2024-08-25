@@ -80,7 +80,13 @@ INT_PTR CALLBACK DialogRemoteInJectProc(
         case IDC_BUTTON_INJECT:
             //EnableDebugPriv();
             GetWindowText(GetDlgItem(handDlg, IDC_EDIT_PROCESS_ID), szPid, 0x10);
-            dwPid = wcstol(szPid, 0, 10);
+            if (szPid[0] == TEXT('0')) {
+                dwPid = wcstol(szPid, 0, 16);
+            }
+            else
+            {
+                dwPid = wcstol(szPid, 0, 10);
+            }
             GetWindowText(GetDlgItem(handDlg, IDC_STATIC_DLL_PATH), szDllPath, MAX_PATH);
             if (!IsPE(szDllPath)) return TRUE;
 
@@ -162,7 +168,13 @@ INT_PTR CALLBACK DialogRemoteInJectProc(
             // п╤ть dll
         case IDC_BUTTON_FREE:
             GetWindowText(GetDlgItem(handDlg, IDC_EDIT_PROCESS_ID), szPid, 0x10);
-            dwPid = wcstol(szPid, 0, 10);
+            if (szPid[0] == TEXT('0')) {
+                dwPid = wcstol(szPid, 0, 16);
+            }
+            else
+            {
+                dwPid = wcstol(szPid, 0, 10);
+            }
             GetWindowText(GetDlgItem(handDlg, IDC_STATIC_DLL_PATH), szDllPath, MAX_PATH);
             if (!IsPE(szDllPath)) return TRUE;
 

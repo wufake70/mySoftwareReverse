@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.35026.233
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AntiAttach", "AntiAttach\AntiAttach.vcxproj", "{6DFD5607-DD6C-486B-B077-3EC8B7531221}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6DFD5607-DD6C-486B-B077-3EC8B7531221}.Debug|x64.ActiveCfg = Debug|x64
+		{6DFD5607-DD6C-486B-B077-3EC8B7531221}.Debug|x64.Build.0 = Debug|x64
+		{6DFD5607-DD6C-486B-B077-3EC8B7531221}.Debug|x86.ActiveCfg = Debug|Win32
+		{6DFD5607-DD6C-486B-B077-3EC8B7531221}.Debug|x86.Build.0 = Debug|Win32
+		{6DFD5607-DD6C-486B-B077-3EC8B7531221}.Release|x64.ActiveCfg = Release|x64
+		{6DFD5607-DD6C-486B-B077-3EC8B7531221}.Release|x64.Build.0 = Release|x64
+		{6DFD5607-DD6C-486B-B077-3EC8B7531221}.Release|x86.ActiveCfg = Release|Win32
+		{6DFD5607-DD6C-486B-B077-3EC8B7531221}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {CAE48927-3FAC-429B-BEFF-D5FBB22AF0A4}
+	EndGlobalSection
+EndGlobal
