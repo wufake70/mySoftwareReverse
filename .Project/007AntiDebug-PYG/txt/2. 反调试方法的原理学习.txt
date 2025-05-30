@@ -1,0 +1,22 @@
+
+讲师 ： xjun
+二、反调试方法的原理学习
+	WOW64子系统介绍
+	异常分发顺序
+	通过第一课学习使用反调试方法，分析从应用层到内核层调用过程，从原理角度分析各个反调试方法方法利与弊，和他究竟是如何检测到调试器的？
+
+1.WOW64子系统介绍
+	WOW64 (Windows-on-Windows 64-bit)是一个Windows操作系统的子系统, 它为现有的 32 位应用程序提供了 32 位的模拟，可以使大多数 32 位应用程序在无需修改的情况下运行在 Windows 64 位版本上。
+	
+	kernel32.OpenProcess -> kernelBase.OpenProcess -> ntdll32.ZwOpenProcess -> wow64cpu.jmp 0033:xxxxxx
+	-> wow64cpu!X86SwitchTo64BitMode ->wow64cpu!CpupReturnFromSimulatedCode->wow64!Wow64SystemServiceEx
+	-> ntdll64!ZwOpenProcess -> syscall ->内核层 -> mov     eax,23h SSDT Index -> SSDT 函数
+	
+2.异常分发顺序
+	异常中断产生->判断是否有调试器->
+	有调试器->先把异常分发给调试器->
+	无调试器-> nntdll64.KiUserExceptionDispatcher->判断是否是32位程序异常？->是->ntdll32.KiUserExceptionDispatcher
+	->VEH->SEH->?????
+
+3.原理学习
+	

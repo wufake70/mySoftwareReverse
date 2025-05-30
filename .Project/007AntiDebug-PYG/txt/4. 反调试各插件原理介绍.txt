@@ -1,0 +1,47 @@
+
+四、反调试各插件原理介绍
+	相信大家如果认真学习了以上几课，现在对反调试也不会陌生。我们以市场上大家常用的反调试插件为例，来分析反反调试插件的工作原理。更清楚的认知反反调试插件是如何处理掉这些反调试的？
+	StrongOD
+	PhantOm
+	ScyllaHide
+	SharpOD
+	
+课后作业
+	不依赖任何反反调试插件，绕过VMProtect 2.x - 3.0.9
+	
+	自行VMP加固一个软件，去掉反调试插件并写出反调试分析文章。
+	
+	普通话不标准，还请大家见谅 - -！ 
+									by：Xjun
+
+#################################################################
+
+1.StrongOD
+	1.修复OD BUG
+	2.HIDE PEB
+	3.Anti Anti_Attach ,Hook 远程进程的 LdrInitialize
+	4.KernelMode 在64位系统上 加载不起来，导致在64位上 只能用于来修复OD BUG，还有一个非常好用的快捷键
+	5.驱动是SSDT Hook + Shadow SSDT Hook
+	6.如果你是32位系统的话，只推荐SOD插件
+	
+2.PhantOm
+	1.是一个 ring3 反反调试插件
+	2.Hook 点 wow64cpu.jmp 0033:xxxxxx
+	3.NtQueryInfomationProcess ,NtQuerySystemInformation,NtSetInfomationThread
+	4.没有处理64位PEB
+	5.只Hook了 以上3个，函数，其他什么地方都没处理
+	6.判断SSDT Index 都是硬编码，最高只支持WIN7
+	
+3.scyllahide
+	1.是一款非常优秀的 反反调试插件
+	2.Hook 点 wow64cpu.jmp 0033:xxxxxx
+	3.处理的东西非常全面
+	4.兼容性非常好，从XP-WIN10
+	5.Hook 点不深
+	
+4.SharpOD
+	1.Hook ntdll64
+	2.XAntiDebug 为什么？ 直接调用Syscall，只有SSDT Hook 能拦截的到，只有上驱动SSDT Hook，但要过PG。
+	3.只支持64位系统
+	4.处理非常全面
+

@@ -1,0 +1,19 @@
+
+三、反调试与反反调试的对抗
+	通过第一课和第二课，我们从对抗者的角度去研究，寻找处理反调试，逐一绕过以上反调试。
+
+1.反调试与反反调试的对抗
+	1.Hook点  
+		SSDT 最好的，这个方案。titanhide。
+	2.Hook API
+		Hook ntdll64 实现难度大，兼容性不好
+		Hook wow64cpu.jmp 0033:xxxxxx  实现难度小，兼容性好
+2.调试
+	1.系统断点
+	2.TLS
+	3.模块入口（OEP）
+	
+3.处理
+	1.peb32 & peb64 ProcessBasicInformation 得到 peb
+	
+		

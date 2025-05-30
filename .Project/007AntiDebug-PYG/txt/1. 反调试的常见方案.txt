@@ -1,0 +1,59 @@
+﻿1.windows api
+	PEB
+		BeingDebugged : 1
+		NtGlobalFlag : 0x70
+		ProcessHeap:
+			HeapFlags 	: 0x2(默认值)  offset:0x40	0x70(x64) 
+			ForceFlags 	: 0x0(默认值)  offset:0x44	0x74(x64)
+		
+	IsDebuggerPresent
+	
+	CheckRemoteDebuggerPresent ->ProcessDebugPort
+	
+	NtQuerySystemInformation
+		SystemKernelDebuggerInformation  
+ 
+	NtClose
+	
+	NtQueryInformationProcess
+		ProcessDebugPort  
+		ProcessDebugObjectHandle  
+		ProcessDebugFlags
+	
+	NtSetInformationThread
+		ThreadHideFromDebugger
+	
+	NtDuplicateObject
+	
+	NtQueryObject
+		ObjectTypesInformation->DebugObject  
+	
+2.窗口、菜单检测
+	FindWindow
+	EmunWindow
+	GetWindow
+	GetMenu
+
+3.进程检测，模块文件检测
+	NtQueryInformationProcess
+	ProcessBasicInformation
+	CreateToolhelp32Snapshot
+	QueryFullProcessImageName
+
+4.时间差检测
+	RDTSC
+	GetTickCount
+	BlockInput
+
+5.硬件断点检测
+	GetThreadContext
+	异常
+
+6.自实现内存CRC
+	内存CRC
+	
+7.反附加
+	DbgBreakPoint
+	
+	
+	
